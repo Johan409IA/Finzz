@@ -1,0 +1,11 @@
+{
+  "name": "finzz",
+  "private": true,
+  "workspaces": ["apps/*"], 
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
