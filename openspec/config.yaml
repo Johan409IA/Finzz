@@ -1,0 +1,15 @@
+schema: spec-driven
+
+project:
+  name: Finzz
+  description: Gestor de gastos personales con categorización automática
+  stack:
+    - Backend: Fastify + TypeScript, deploy en Render
+    - Base de datos: PostgreSQL administrado por InsForge
+    - ORM: Drizzle (esquema manual, no agent-native)
+    - Auth: módulo integrado de InsForge
+    - Frontend: SolidJS + Vite + Tailwind + Solid UI, deploy en Vercel
+    - Package manager: Bun (workspaces, monorepo apps/backend + apps/frontend)
+  conventions:
+    - Todas las tablas de negocio llevan usuario_id (FK al usuario de InsForge)
+    - Historial de transacciones inmutable, no hay delete

@@ -1,1 +1,1 @@
-console.log("Hello via Bun!");
+export { createApp, loadConfigFromEnv } from './src/index'

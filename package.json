@@ -2,6 +2,9 @@
   "name": "finzz",
   "private": true,
   "workspaces": ["apps/*"], 
+  "scripts": {
+    "dev": "bun run --parallel --filter '*' dev"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
