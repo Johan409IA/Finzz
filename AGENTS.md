@@ -5,6 +5,9 @@ Usa la skill de  ```fastify-best-practices``` cuando vas a implementar Fastify e
 
 Puedes ejecutar ````bun dev```` para levantar el backend y el frontend al mismo tiempo. Esto es útil para desarrollo local y pruebas rápidas.
 
+Usa este comando para que puedas usar la CLI de insforge: ```npx @insforge/cli --help```
+El proyecto en insforge se llama 'JotaScript'
+
 
 <!-- INSFORGE:START -->
 ## InsForge backend

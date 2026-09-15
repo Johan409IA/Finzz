@@ -88,7 +88,7 @@ export default fp<AuthPluginOptions>(async (fastify, options) => {
         role: payload.role,
       }
 
-      request.auth = { user, tokenPayload: payload }
+      request.auth = { user, token, tokenPayload: payload }
     }
   })
 })

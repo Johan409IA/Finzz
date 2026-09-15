@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "solid-js-1x-best-practices-and-api": {
+      "source": "doeixd/solid-skill",
+      "sourceType": "github",
+      "skillPath": "solid-js-1.x-best-practices-and-api/SKILL.md",
+      "computedHash": "d54241b1749f5db6eb4678a2d6434b63fb3238fc299280511ac36ca61b7a8ac7"
+    }
+  }
+}

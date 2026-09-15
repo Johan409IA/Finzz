@@ -12,4 +12,4 @@ project:
     - Package manager: Bun (workspaces, monorepo apps/backend + apps/frontend)
   conventions:
     - Todas las tablas de negocio llevan usuario_id (FK al usuario de InsForge)
-    - Historial de transacciones inmutable, no hay delete
+    - Los gastos pueden editarse y eliminarse por su propietario

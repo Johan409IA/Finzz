@@ -3,12 +3,15 @@ import cors from '@fastify/cors'
 import authPlugin from './auth/plugin'
 import { registerAuthRoutes } from './routes/auth'
 import { registerHealthRoutes } from './routes/health'
+import { createExpenseRepository, type ExpenseRepository } from './expenses/repository'
+import { registerExpenseRoutes } from './expenses/routes'
 
 export interface AppConfig {
   jwksUrl: string
   hs256Secret?: string
   corsOrigin: string | string[]
   port: number
+  expenseRepository?: ExpenseRepository
 }
 
 export function createApp(config: AppConfig) {
@@ -17,6 +20,7 @@ export function createApp(config: AppConfig) {
   void app.register(cors, {
     origin: config.corsOrigin,
     credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   })
 
   void app.register(authPlugin, {
@@ -26,6 +30,9 @@ export function createApp(config: AppConfig) {
 
   void app.register(registerHealthRoutes)
   void app.register(registerAuthRoutes)
+  void app.register(registerExpenseRoutes, {
+    repository: config.expenseRepository ?? createExpenseRepository(new URL(config.jwksUrl).origin),
+  })
 
   return app
 }

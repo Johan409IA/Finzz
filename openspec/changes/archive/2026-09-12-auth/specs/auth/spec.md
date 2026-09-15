@@ -7,11 +7,15 @@ El sistema SHALL permitir a una persona registrarse en la aplicación mediante e
 
 #### Scenario: Registro exitoso
 - **WHEN** una persona no autenticada completa el registro con credenciales válidas a través del SDK de InsForge
-- **THEN** la sesión se inicia y la persona queda autenticada en la aplicación
+- **THEN** el sistema crea la cuenta y envía un enlace de verificación al email, sin iniciar sesión todavía
 
 #### Scenario: Registro con credenciales inválidas
 - **WHEN** una persona intenta registrarse con datos inválidos o no permitidos por InsForge
 - **THEN** el sistema muestra un error de UI y no crea una sesión autenticada
+
+#### Scenario: Verificación de email por enlace
+- **WHEN** la persona abre el enlace de verificación enviado a su email
+- **THEN** InsForge confirma el email y redirige a la página de login, que muestra un mensaje para iniciar sesión; si la verificación falla, el login muestra el error correspondiente
 
 ### Requirement: Inicio de sesión
 El sistema SHALL permitir a un usuario autenticarse en la aplicación mediante el flujo de autenticación de InsForge.
@@ -102,7 +106,7 @@ El sistema SHALL proteger las rutas de la aplicación para que una persona no au
 - **THEN** las rutas se renderizan y no se exige una sesión válida
 
 ### Requirement: Configuración fuera del repositorio
-El sistema SHALL leer la configuración de InsForge (URL, issuer, audience y mecanismo de verificación de tokens) desde variables de entorno, sin incluir secretos en el repositorio.
+El sistema SHALL leer la configuración de InsForge (URL del proyecto, JWKS público y fallback HS256 opcional) desde variables de entorno, sin incluir secretos en el repositorio. Las URLs de redirección autorizadas SHALL gestionarse en la configuración del proyecto InsForge.
 
 #### Scenario: Configuración completa
 - **WHEN** la aplicación arranca con la configuración de InsForge completa en el entorno

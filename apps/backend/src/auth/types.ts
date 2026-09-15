@@ -8,5 +8,6 @@ export interface AuthUser {
 
 export interface AuthContext {
   user: AuthUser
+  token: string
   tokenPayload: JWTPayload
 }
