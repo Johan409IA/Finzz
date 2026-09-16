@@ -5,7 +5,6 @@ import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
-import './App.css'
 
 function RootRedirect() {
   const { status } = useAuth()
@@ -18,11 +17,15 @@ function RootRedirect() {
     }
   })
 
-  return status() === 'loading' ? <p>Cargando sesión…</p> : null
+  return status() === 'loading' ? <p class="py-8 text-center text-finzz-text">Cargando sesión…</p> : null
 }
 
 function Layout(props: RouteSectionProps) {
-  return <>{props.children}</>
+  return (
+    <div class="mx-auto flex min-h-svh w-full max-w-[1126px] flex-col border-x border-finzz-border bg-finzz-bg text-finzz-text">
+      {props.children}
+    </div>
+  )
 }
 
 function App() {

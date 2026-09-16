@@ -3,6 +3,10 @@ import { useNavigate } from '@solidjs/router'
 import { insforge } from '../lib/insforge'
 import { useAuth } from '../lib/auth'
 
+const inputClass =
+  'w-full box-border rounded-md border border-finzz-border bg-finzz-bg px-3 py-2.5 text-finzz-heading'
+const labelClass = 'grid gap-1.5 text-left text-sm text-finzz-heading'
+
 export default function LoginPage() {
   const navigate = useNavigate()
   const { refresh } = useAuth()
@@ -57,10 +61,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div class="auth-container">
-      <h1>Iniciar sesión</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
+    <div class="mx-auto w-[min(100%-2rem,1120px)] max-w-md px-4 py-16">
+      <div class="mb-8 flex flex-col items-center gap-3 text-center">
+        <img src="/logo.png" alt="Logotipo de Finzz" class="h-16 w-16 rounded-2xl object-contain" />
+        <h1 class="m-0 text-4xl font-medium tracking-tight text-finzz-heading">Iniciar sesión</h1>
+      </div>
+      <form
+        onSubmit={handleSubmit}
+        class="grid gap-4 rounded-xl border border-finzz-border bg-finzz-surface p-6"
+      >
+        <label class={labelClass}>
           Email
           <input
             type="email"
@@ -68,9 +78,10 @@ export default function LoginPage() {
             onInput={(e) => setEmail(e.currentTarget.value)}
             required
             autocomplete="email"
+            class={inputClass}
           />
         </label>
-        <label>
+        <label class={labelClass}>
           Contraseña
           <input
             type="password"
@@ -78,16 +89,21 @@ export default function LoginPage() {
             onInput={(e) => setPassword(e.currentTarget.value)}
             required
             autocomplete="current-password"
+            class={inputClass}
           />
         </label>
-        {error() && <p class="auth-error" role="alert">{error()}</p>}
-        {info() && <p class="auth-info" role="status">{info()}</p>}
-        <button type="submit" disabled={loading()}>
+        {error() && <p class="text-finzz-danger" role="alert">{error()}</p>}
+        {info() && <p class="text-finzz-success" role="status">{info()}</p>}
+        <button
+          type="submit"
+          disabled={loading()}
+          class="rounded-md border border-transparent bg-finzz-accent px-3 py-2 text-sm text-white transition-colors hover:bg-finzz-accent-strong disabled:cursor-not-allowed disabled:opacity-55"
+        >
           {loading() ? 'Entrando…' : 'Entrar'}
         </button>
       </form>
-      <p>
-        ¿No tienes cuenta? <a href="/registro">Regístrate</a>
+      <p class="mt-4 text-center">
+        ¿No tienes cuenta? <a class="underline" href="/registro">Regístrate</a>
       </p>
     </div>
   )

@@ -1,6 +1,7 @@
 import { createClient, type InsForgeClient } from '@insforge/sdk'
-import type { CreateExpensePayload, UpdateExpensePayload } from './schemas'
-import type { Expense, ExpenseCategory } from './types'
+import { getPeriodBounds, type CreateExpensePayload, type UpdateExpensePayload } from './schemas'
+import type { ExpensePeriod } from './periods'
+import type { Expense, ExpenseCategory, ExpenseSummary } from './types'
 
 const expenseSelect = `
   id,
@@ -28,6 +29,11 @@ type RawExpense = {
   category: RawCategory
 }
 
+type RawSummaryExpense = {
+  amount: number | string
+  category: RawCategory
+}
+
 export class ExpenseRepositoryError extends Error {
   constructor(
     public readonly code: 'NOT_FOUND' | 'DATABASE_ERROR',
@@ -40,7 +46,8 @@ export class ExpenseRepositoryError extends Error {
 
 export interface ExpenseRepository {
   listCategories(token: string): Promise<ExpenseCategory[]>
-  listExpenses(token: string, userId: string): Promise<Expense[]>
+  listExpenses(token: string, userId: string, period?: ExpensePeriod): Promise<Expense[]>
+  getSummary(token: string, userId: string, period: ExpensePeriod): Promise<ExpenseSummary>
   createExpense(token: string, userId: string, input: CreateExpensePayload): Promise<Expense>
   updateExpense(token: string, userId: string, expenseId: string, input: UpdateExpensePayload): Promise<Expense>
   deleteExpense(token: string, userId: string, expenseId: string): Promise<void>
@@ -98,17 +105,73 @@ export function createExpenseRepository(baseUrl: string): ExpenseRepository {
     return (data ?? []).map((category) => mapCategory(category as RawCategory))
   }
 
-  async function listExpenses(token: string, userId: string): Promise<Expense[]> {
+  async function listExpenses(token: string, userId: string, period?: ExpensePeriod): Promise<Expense[]> {
     const client = createInsforgeClient(baseUrl, token)
-    const { data, error } = await client.database
+    const query = client.database
       .from('expenses')
       .select(expenseSelect)
       .eq('user_id', userId)
+    if (period) {
+      const { periodStart, periodEnd } = getPeriodBounds(period)
+      query.gte('expense_date', periodStart).lte('expense_date', periodEnd)
+    }
+    const { data, error } = await query
       .order('expense_date', { ascending: false })
       .order('created_at', { ascending: false })
 
     if (error) throwDatabaseError('No se pudieron consultar los gastos', error)
     return (data ?? []).map((expense) => mapExpense(expense as unknown as RawExpense))
+  }
+
+  async function getSummary(token: string, userId: string, period: ExpensePeriod): Promise<ExpenseSummary> {
+    const client = createInsforgeClient(baseUrl, token)
+    const { periodStart, periodEnd } = getPeriodBounds(period)
+    const { data, error } = await client.database
+      .from('expenses')
+      .select('amount, category:expense_categories(id, slug, name)')
+      .eq('user_id', userId)
+      .gte('expense_date', periodStart)
+      .lte('expense_date', periodEnd)
+
+    if (error) throwDatabaseError('No se pudo consultar el resumen de gastos', error)
+
+    const grouped = new Map<string, { category: ExpenseCategory; amount: number; expenseCount: number }>()
+    let totalAmount = 0
+    let expenseCount = 0
+
+    for (const rawExpense of (data ?? []) as unknown as RawSummaryExpense[]) {
+      const amount = Number(rawExpense.amount)
+      const category = mapCategory(rawExpense.category)
+      const current = grouped.get(category.id) ?? { category, amount: 0, expenseCount: 0 }
+      current.amount += amount
+      current.expenseCount += 1
+      grouped.set(category.id, current)
+      totalAmount += amount
+      expenseCount += 1
+    }
+
+    const roundedTotal = Number(totalAmount.toFixed(2))
+    const categories = [...grouped.values()]
+      .map(({ category, amount, expenseCount: categoryExpenseCount }) => ({
+        categoryId: category.id,
+        slug: category.slug,
+        name: category.name,
+        amount: Number(amount.toFixed(2)),
+        expenseCount: categoryExpenseCount,
+        percentage: roundedTotal === 0 ? 0 : Number(((amount / roundedTotal) * 100).toFixed(2)),
+      }))
+      .sort((left, right) => right.amount - left.amount || left.name.localeCompare(right.name))
+
+    return {
+      period: period.type,
+      periodKey: period.type === 'month' ? period.month : period.weekStart,
+      ...(period.type === 'month' ? { month: period.month } : { weekStart: period.weekStart }),
+      periodStart,
+      periodEnd,
+      totalAmount: roundedTotal,
+      expenseCount,
+      categories,
+    }
   }
 
   async function createExpense(token: string, userId: string, input: CreateExpensePayload): Promise<Expense> {
@@ -177,6 +240,7 @@ export function createExpenseRepository(baseUrl: string): ExpenseRepository {
   return {
     listCategories,
     listExpenses,
+    getSummary,
     createExpense,
     updateExpense,
     deleteExpense,

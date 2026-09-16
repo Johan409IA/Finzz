@@ -27,3 +27,26 @@ export interface UpdateExpenseInput {
   categoryId?: string
   description?: string
 }
+
+export interface ExpenseSummaryCategory {
+  categoryId: string
+  slug: string
+  name: string
+  amount: number
+  expenseCount: number
+  percentage: number
+}
+
+export type ExpensePeriodType = 'month' | 'week'
+
+export interface ExpenseSummary {
+  period: ExpensePeriodType
+  periodKey: string
+  month?: string
+  weekStart?: string
+  periodStart: string
+  periodEnd: string
+  totalAmount: number
+  expenseCount: number
+  categories: ExpenseSummaryCategory[]
+}

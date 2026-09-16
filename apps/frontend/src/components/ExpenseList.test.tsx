@@ -57,7 +57,7 @@ describe('ExpenseList', () => {
     ))
 
     expect(screen.getByText('Café')).toBeTruthy()
-    expect(screen.getByText((text) => text.includes('12,50'))).toBeTruthy()
+    expect(screen.getByText((text) => text.includes('S/ 12.50'))).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Editar' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Eliminar' })).toBeTruthy()
   })

@@ -16,9 +16,12 @@
     "solid-js": "^1.9.14"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^24.13.3",
     "jsdom": "^30.0.1",
+    "postcss": "^8.5.28",
     "solid-testing-library": "^0.5.1",
+    "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vite-plugin-solid": "^2.11.13",

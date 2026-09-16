@@ -1,4 +1,5 @@
 import { For, Show } from 'solid-js'
+import { formatCurrency, formatDate } from '../lib/format'
 import type { Expense } from '../lib/expenses'
 
 interface ExpenseListProps {
@@ -10,67 +11,79 @@ interface ExpenseListProps {
   deletingId: string | null
 }
 
-function formatAmount(amount: number) {
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount)
-}
-
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium', timeZone: 'UTC' }).format(
-    new Date(`${date}T00:00:00Z`),
-  )
-}
-
 export default function ExpenseList(props: ExpenseListProps) {
   return (
-    <section class="expense-list" aria-labelledby="expense-list-title">
-      <div class="section-heading">
+    <section
+      aria-labelledby="expense-list-title"
+      class="rounded-xl border border-finzz-border bg-finzz-surface p-5 text-left"
+    >
+      <div class="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p class="eyebrow">Actividad</p>
-          <h2 id="expense-list-title">Tus gastos</h2>
+          <p class="m-0 text-xs font-bold uppercase tracking-[0.1em] text-finzz-accent">Actividad</p>
+          <h2 id="expense-list-title" class="mb-0 mt-1 text-xl text-finzz-heading">Tus gastos</h2>
         </div>
         <Show when={!props.loading && props.expenses.length > 0}>
-          <span class="count-badge">{props.expenses.length}</span>
+          <span class="rounded-full bg-finzz-accent-bg px-2.5 py-1.5 text-xs text-finzz-heading">
+            {props.expenses.length}
+          </span>
         </Show>
       </div>
 
       <Show when={props.loading}>
-        <div class="expense-skeleton" aria-busy="true" aria-label="Cargando gastos">
-          <For each={[1, 2, 3]}>{() => <div class="skeleton-row" />}</For>
+        <div class="grid gap-3" aria-busy="true" aria-label="Cargando gastos">
+          <For each={[1, 2, 3]}>{() => <div class="h-14 animate-pulse rounded-md bg-finzz-code" />}</For>
         </div>
       </Show>
 
       <Show when={!props.loading && props.error}>
-        {(message) => <p class="status-message status-error" role="alert">{message()}</p>}
+        {(message) => <p class="mt-4 text-sm text-finzz-danger" role="alert">{message()}</p>}
       </Show>
 
       <Show when={!props.loading && !props.error && props.expenses.length === 0}>
-        <div class="empty-state" role="status">
-          <span class="empty-icon" aria-hidden="true">€</span>
-          <h3>Aún no tienes gastos</h3>
-          <p>Registra tu primer gasto para empezar a entender tus hábitos.</p>
+        <div class="grid justify-items-center gap-2 px-4 py-12 text-center" role="status">
+          <span
+            aria-hidden="true"
+            class="grid h-9 w-9 place-items-center rounded-lg bg-finzz-accent-bg font-bold text-finzz-accent"
+          >
+            S/
+          </span>
+          <h3 class="mb-0 mt-2 text-finzz-heading">Aún no tienes gastos</h3>
+          <p class="max-w-[22rem]">Registra tu primer gasto para empezar a entender tus hábitos.</p>
         </div>
       </Show>
 
       <Show when={!props.loading && !props.error && props.expenses.length > 0}>
-        <ul class="expense-items" role="list">
+        <ul class="m-0 grid list-none gap-2 p-0" role="list">
           <For each={props.expenses}>
             {(expense) => (
-              <li class="expense-item">
-                <div class="expense-category" aria-hidden="true">{expense.category.name.slice(0, 1)}</div>
-                <div class="expense-detail">
-                  <strong>{expense.description || expense.category.name}</strong>
-                  <span>{expense.category.name} · {formatDate(expense.expenseDate)}</span>
+              <li class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-finzz-border py-3 last:border-b-0 sm:grid-cols-[auto_minmax(0,1fr)_auto_auto]">
+                <div aria-hidden="true" class="grid h-9 w-9 place-items-center rounded-lg bg-finzz-accent-bg font-bold text-finzz-accent">
+                  {expense.category.name.slice(0, 1)}
                 </div>
-                <strong class="expense-amount">{formatAmount(expense.amount)}</strong>
-                <div class="expense-actions">
-                  <button type="button" class="button button-quiet" onClick={() => props.onEdit(expense)}>
+                <div class="min-w-0">
+                  <strong class="block overflow-hidden text-ellipsis whitespace-nowrap text-finzz-heading">
+                    {expense.description || expense.category.name}
+                  </strong>
+                  <span class="mt-0.5 block overflow-hidden text-ellipsis whitespace-nowrap text-xs">
+                    {expense.category.name} · {formatDate(expense.expenseDate)}
+                  </span>
+                </div>
+                <strong class="col-start-3 row-start-1 text-finzz-heading sm:col-auto sm:row-auto">
+                  {formatCurrency(expense.amount)}
+                </strong>
+                <div class="col-span-2 col-start-2 flex justify-end gap-1 sm:col-auto sm:col-start-auto">
+                  <button
+                    type="button"
+                    onClick={() => props.onEdit(expense)}
+                    class="rounded-md border border-finzz-border bg-transparent px-3 py-2 text-sm text-finzz-heading transition-colors hover:bg-finzz-accent-bg"
+                  >
                     Editar
                   </button>
                   <button
                     type="button"
-                    class="button button-danger"
                     disabled={props.deletingId === expense.id}
                     onClick={() => props.onDelete(expense)}
+                    class="rounded-md border border-transparent bg-transparent px-3 py-2 text-sm text-finzz-danger transition-colors hover:border-finzz-danger-border hover:bg-finzz-danger-bg disabled:cursor-not-allowed disabled:opacity-55"
                   >
                     {props.deletingId === expense.id ? 'Eliminando…' : 'Eliminar'}
                   </button>

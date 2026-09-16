@@ -23,6 +23,33 @@ export interface ExpenseInput {
   description: string
 }
 
+export type ExpensePeriodType = 'month' | 'week'
+
+export type ExpensePeriod =
+  | { type: 'month'; month: string }
+  | { type: 'week'; weekStart: string }
+
+export interface ExpenseSummaryCategory {
+  categoryId: string
+  slug: string
+  name: string
+  amount: number
+  expenseCount: number
+  percentage: number
+}
+
+export interface ExpenseSummary {
+  period: ExpensePeriodType
+  periodKey: string
+  month?: string
+  weekStart?: string
+  periodStart: string
+  periodEnd: string
+  totalAmount: number
+  expenseCount: number
+  categories: ExpenseSummaryCategory[]
+}
+
 interface ApiErrorResponse {
   error?: {
     message?: string
@@ -56,8 +83,20 @@ export function listCategories(): Promise<ExpenseCategory[]> {
   return request<ExpenseCategory[]>('/api/expense-categories')
 }
 
-export function listExpenses(): Promise<Expense[]> {
-  return request<Expense[]>('/api/expenses')
+function periodSearchParams(period: ExpensePeriod): string {
+  const params = new URLSearchParams({ period: period.type })
+  if (period.type === 'month') params.set('month', period.month)
+  else params.set('weekStart', period.weekStart)
+  return params.toString()
+}
+
+export function listExpenses(period?: ExpensePeriod): Promise<Expense[]> {
+  const query = period ? `?${periodSearchParams(period)}` : ''
+  return request<Expense[]>(`/api/expenses${query}`)
+}
+
+export function getExpenseSummary(period: ExpensePeriod): Promise<ExpenseSummary> {
+  return request<ExpenseSummary>(`/api/expenses/summary?${periodSearchParams(period)}`)
 }
 
 export function createExpense(input: ExpenseInput): Promise<Expense> {

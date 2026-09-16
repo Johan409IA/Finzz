@@ -1,6 +1,13 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { ZodError } from 'zod'
-import { expenseIdParamsSchema, createExpenseSchema, updateExpenseSchema } from './schemas'
+import {
+  createExpenseSchema,
+  expenseIdParamsSchema,
+  expenseListQuerySchema,
+  expenseSummaryQuerySchema,
+  normalizeExpensePeriod,
+  updateExpenseSchema,
+} from './schemas'
 import { ExpenseRepositoryError, type ExpenseRepository } from './repository'
 
 interface ExpenseRouteOptions {
@@ -43,10 +50,36 @@ export async function registerExpenseRoutes(app: FastifyInstance, options: Expen
   })
 
   app.get('/api/expenses', async (request, reply) => {
+    const parsed = expenseListQuerySchema.safeParse(request.query)
+    if (!parsed.success) {
+      return sendError(reply, 422, 'VALIDATION_ERROR', 'El periodo de gastos no es válido', parsed.error.flatten())
+    }
+
     try {
       const auth = requireAuth(request)
-      const expenses = await options.repository.listExpenses(auth.token, auth.user.usuarioId)
+      const expenses = await options.repository.listExpenses(
+        auth.token,
+        auth.user.usuarioId,
+        normalizeExpensePeriod(parsed.data),
+      )
       return { data: expenses }
+    } catch (error) {
+      return handleError(reply, error)
+    }
+  })
+
+  app.get('/api/expenses/summary', async (request, reply) => {
+    const parsed = expenseSummaryQuerySchema.safeParse(request.query)
+    if (!parsed.success) {
+      return sendError(reply, 422, 'VALIDATION_ERROR', 'El periodo del resumen no es válido', parsed.error.flatten())
+    }
+
+    try {
+      const auth = requireAuth(request)
+      const period = normalizeExpensePeriod(parsed.data)
+      if (!period) return sendError(reply, 422, 'VALIDATION_ERROR', 'El periodo del resumen no es válido')
+      const summary = await options.repository.getSummary(auth.token, auth.user.usuarioId, period)
+      return { data: summary }
     } catch (error) {
       return handleError(reply, error)
     }

@@ -10,6 +10,10 @@ interface ExpenseFormProps {
   onCancelEdit: () => void
 }
 
+const inputClass =
+  'w-full box-border rounded-md border border-finzz-border bg-finzz-bg px-3 py-2.5 text-finzz-heading'
+const labelClass = 'grid gap-1.5 text-left text-sm text-finzz-heading'
+
 function today() {
   return new Date().toISOString().slice(0, 10)
 }
@@ -53,21 +57,31 @@ export default function ExpenseForm(props: ExpenseFormProps) {
   }
 
   return (
-    <form class="expense-form" aria-label={props.editingExpense ? 'Editar gasto' : 'Nuevo gasto'} onSubmit={handleSubmit}>
-      <div class="section-heading">
+    <form
+      aria-label={props.editingExpense ? 'Editar gasto' : 'Nuevo gasto'}
+      onSubmit={handleSubmit}
+      class="rounded-xl border border-finzz-border bg-finzz-surface p-5 text-left"
+    >
+      <div class="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p class="eyebrow">Registro</p>
-          <h2>{props.editingExpense ? 'Editar gasto' : 'Añadir gasto'}</h2>
+          <p class="m-0 text-xs font-bold uppercase tracking-[0.1em] text-finzz-accent">Registro</p>
+          <h2 class="mb-0 mt-1 text-xl text-finzz-heading">
+            {props.editingExpense ? 'Editar gasto' : 'Añadir gasto'}
+          </h2>
         </div>
         <Show when={props.editingExpense}>
-          <button type="button" class="button button-quiet" onClick={props.onCancelEdit}>
+          <button
+            type="button"
+            onClick={props.onCancelEdit}
+            class="rounded-md border border-finzz-border bg-transparent px-3 py-2 text-sm text-finzz-heading transition-colors hover:bg-finzz-accent-bg"
+          >
             Cancelar
           </button>
         </Show>
       </div>
 
-      <div class="form-grid">
-        <label>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <label class={labelClass}>
           Importe
           <input
             type="number"
@@ -77,27 +91,34 @@ export default function ExpenseForm(props: ExpenseFormProps) {
             value={amount()}
             onInput={(event) => setAmount(event.currentTarget.value)}
             required
+            class={inputClass}
           />
         </label>
-        <label>
+        <label class={labelClass}>
           Fecha
           <input
             type="date"
             value={expenseDate()}
             onInput={(event) => setExpenseDate(event.currentTarget.value)}
             required
+            class={inputClass}
           />
         </label>
-        <label>
+        <label class={labelClass}>
           Categoría
-          <select value={categoryId()} onChange={(event) => setCategoryId(event.currentTarget.value)} required>
+          <select
+            value={categoryId()}
+            onChange={(event) => setCategoryId(event.currentTarget.value)}
+            required
+            class={inputClass}
+          >
             <option value="" disabled>Selecciona una categoría</option>
             <For each={props.categories}>
               {(category) => <option value={category.id}>{category.name}</option>}
             </For>
           </select>
         </label>
-        <label class="form-grid-wide">
+        <label class={`${labelClass} sm:col-span-2`}>
           Descripción
           <input
             type="text"
@@ -105,18 +126,23 @@ export default function ExpenseForm(props: ExpenseFormProps) {
             value={description()}
             onInput={(event) => setDescription(event.currentTarget.value)}
             placeholder="Ej. Compra semanal"
+            class={inputClass}
           />
         </label>
       </div>
 
       <Show when={formError()}>
-        {(message) => <p class="form-error" role="alert">{message()}</p>}
+        {(message) => <p class="mt-4 text-sm text-finzz-danger" role="alert">{message()}</p>}
       </Show>
       <Show when={props.error}>
-        {(message) => <p class="form-error" role="alert">{message()}</p>}
+        {(message) => <p class="mt-4 text-sm text-finzz-danger" role="alert">{message()}</p>}
       </Show>
 
-      <button class="button button-primary" type="submit" disabled={props.saving || props.categories.length === 0}>
+      <button
+        type="submit"
+        disabled={props.saving || props.categories.length === 0}
+        class="mt-5 w-full rounded-md border border-transparent bg-finzz-accent px-3 py-2 text-sm text-white transition-colors hover:bg-finzz-accent-strong disabled:cursor-not-allowed disabled:opacity-55"
+      >
         {props.saving ? 'Guardando…' : props.editingExpense ? 'Guardar cambios' : 'Guardar gasto'}
       </button>
     </form>
