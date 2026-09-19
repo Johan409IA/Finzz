@@ -2,9 +2,11 @@ import { Route, Router, useNavigate, type RouteSectionProps } from '@solidjs/rou
 import { createEffect } from 'solid-js'
 import { AuthProvider, useAuth } from './lib/auth'
 import ProtectedRoute from './components/ProtectedRoute'
+import AuthenticatedLayout from './components/AuthenticatedLayout'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
+import HistoryPage from './pages/HistoryPage'
 
 function RootRedirect() {
   const { status } = useAuth()
@@ -35,8 +37,13 @@ function App() {
         <Route path="/" component={RootRedirect} />
         <Route path="/login" component={LoginPage} />
         <Route path="/registro" component={RegisterPage} />
-        <Route path="/dashboard" component={ProtectedRoute}>
-          <Route path="" component={DashboardPage} />
+        <Route component={AuthenticatedLayout}>
+          <Route path="/dashboard" component={ProtectedRoute}>
+            <Route path="" component={DashboardPage} />
+          </Route>
+          <Route path="/historial" component={ProtectedRoute}>
+            <Route path="" component={HistoryPage} />
+          </Route>
         </Route>
       </Router>
     </AuthProvider>

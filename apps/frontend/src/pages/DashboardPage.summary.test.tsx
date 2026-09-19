@@ -1,10 +1,11 @@
 import { fireEvent, render, screen, waitFor } from 'solid-testing-library'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import DashboardPage from './DashboardPage'
-import type { Expense, ExpensePeriod, ExpenseSummary } from '../lib/expenses'
+import type { Expense, ExpensePage, ExpensePeriod, ExpenseSummary } from '../lib/expenses'
 
 const mocks = vi.hoisted(() => ({
   listExpenses: vi.fn(),
+  listExpensesPage: vi.fn(),
   listCategories: vi.fn(),
   getExpenseSummary: vi.fn(),
   createExpense: vi.fn(),
@@ -70,6 +71,7 @@ function periodKey(period: ExpensePeriod): string {
 
 function mockInitial(summary = summarySeptember) {
   mocks.listExpenses.mockResolvedValue([])
+  mocks.listExpensesPage.mockResolvedValue({ items: [], total: 0, page: 1, limit: 5, totalPages: 1 } as ExpensePage)
   mocks.listCategories.mockResolvedValue(categories)
   mocks.getExpenseSummary.mockImplementation(async (period: ExpensePeriod) => {
     if (periodKey(period) === '2026-08' || periodKey(period).startsWith('2026-08')) return summaryAugust
@@ -139,6 +141,7 @@ describe('DashboardPage expense summary', () => {
       expenseCount: 3,
     }
     mocks.listExpenses.mockResolvedValue([])
+    mocks.listExpensesPage.mockResolvedValue({ items: [], total: 0, page: 1, limit: 5, totalPages: 1 } as ExpensePage)
     mocks.listCategories.mockResolvedValue(categories)
     mocks.getExpenseSummary.mockResolvedValueOnce(summarySeptember).mockResolvedValueOnce(updatedSummary)
     mocks.createExpense.mockResolvedValue({
@@ -185,7 +188,8 @@ describe('DashboardPage expense summary', () => {
       createdAt: '2026-09-12T10:00:00.000Z',
       updatedAt: '2026-09-12T10:00:00.000Z',
     }
-    mocks.listExpenses.mockResolvedValue([existing])
+    mocks.listExpenses.mockResolvedValue([])
+    mocks.listExpensesPage.mockResolvedValue({ items: [existing], total: 1, page: 1, limit: 5, totalPages: 1 } as ExpensePage)
     mocks.listCategories.mockResolvedValue(categories)
     mocks.getExpenseSummary.mockResolvedValue(summarySeptember)
     mocks.createExpense.mockResolvedValue(existing)
@@ -230,10 +234,10 @@ describe('DashboardPage expense summary', () => {
     mocks.getExpenseSummary.mockClear()
     mocks.listExpenses.mockClear()
 
-    fireEvent.click(screen.getByLabelText('Semana'))
+    fireEvent.click(screen.getByRole('button', { name: 'Semanal' }))
 
     await waitFor(() => {
-      expect(screen.getByText('Total del periodo semanal')).toBeTruthy()
+      expect(screen.getByText('Total semanal')).toBeTruthy()
     })
     await waitFor(() => {
       const weekCalls = mocks.getExpenseSummary.mock.calls.filter(
@@ -247,6 +251,25 @@ describe('DashboardPage expense summary', () => {
       }
     })
     expect(screen.getByLabelText('Semana del resumen')).toBeTruthy()
+  })
+
+  test('muestra los últimos 5 gastos sin depender del periodo activo', async () => {
+    mockInitial()
+
+    render(() => <DashboardPage />)
+
+    await waitFor(() => {
+      expect(screen.getByText('Total del mes')).toBeTruthy()
+    })
+    expect(mocks.listExpensesPage).toHaveBeenCalledWith({ page: 1, limit: 5 })
+    const callsBefore = mocks.listExpensesPage.mock.calls.length
+
+    fireEvent.click(screen.getByRole('button', { name: 'Semanal' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Total semanal')).toBeTruthy()
+    })
+    expect(mocks.listExpensesPage.mock.calls.length).toBe(callsBefore)
   })
 
   test('sincroniza listExpenses y getExpenseSummary con el mismo periodo', async () => {

@@ -1,7 +1,7 @@
 import { createClient, type InsForgeClient } from '@insforge/sdk'
 import { getPeriodBounds, type CreateExpensePayload, type UpdateExpensePayload } from './schemas'
-import type { ExpensePeriod } from './periods'
-import type { Expense, ExpenseCategory, ExpenseSummary } from './types'
+import { enumerateDates, type ExpensePeriod } from './periods'
+import type { Expense, ExpenseCategory, ExpenseHistoryQuery, ExpensePage, ExpenseSummary } from './types'
 
 const expenseSelect = `
   id,
@@ -31,7 +31,17 @@ type RawExpense = {
 
 type RawSummaryExpense = {
   amount: number | string
+  expense_date: string
   category: RawCategory
+}
+
+interface FilterBuilder {
+  eq(column: string, value: string): FilterBuilder
+  ilike(column: string, pattern: string): FilterBuilder
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replace(/[%_\\]/g, '\\$&')
 }
 
 export class ExpenseRepositoryError extends Error {
@@ -47,6 +57,7 @@ export class ExpenseRepositoryError extends Error {
 export interface ExpenseRepository {
   listCategories(token: string): Promise<ExpenseCategory[]>
   listExpenses(token: string, userId: string, period?: ExpensePeriod): Promise<Expense[]>
+  listExpensesPage(token: string, userId: string, query: ExpenseHistoryQuery): Promise<ExpensePage>
   getSummary(token: string, userId: string, period: ExpensePeriod): Promise<ExpenseSummary>
   createExpense(token: string, userId: string, input: CreateExpensePayload): Promise<Expense>
   updateExpense(token: string, userId: string, expenseId: string, input: UpdateExpensePayload): Promise<Expense>
@@ -105,6 +116,40 @@ export function createExpenseRepository(baseUrl: string): ExpenseRepository {
     return (data ?? []).map((category) => mapCategory(category as RawCategory))
   }
 
+  async function listExpensesPage(token: string, userId: string, query: ExpenseHistoryQuery): Promise<ExpensePage> {
+    const client = createInsforgeClient(baseUrl, token)
+    const search = query.search?.trim() ? query.search.trim() : undefined
+
+    function applyFilters<B>(builder: B): B {
+      const filtered = (builder as unknown as FilterBuilder).eq('user_id', userId)
+      const searched = search ? filtered.ilike('description', `%${escapeLikePattern(search)}%`) : filtered
+      return searched as unknown as B
+    }
+
+    const countQuery = applyFilters(client.database.from('expenses').select('id'))
+    const { data: countData, error: countError } = await countQuery
+    if (countError) throwDatabaseError('No se pudieron consultar los gastos', countError)
+    const total = (countData ?? []).length
+
+    const totalPages = Math.max(1, Math.ceil(total / query.limit))
+    const page = Math.min(query.page, totalPages)
+    const from = (page - 1) * query.limit
+
+    const pageQuery = applyFilters(client.database.from('expenses').select(expenseSelect))
+      .order('expense_date', { ascending: false })
+      .order('created_at', { ascending: false })
+      .range(from, from + query.limit - 1)
+    const { data, error } = await pageQuery
+
+    if (error) throwDatabaseError('No se pudieron consultar los gastos', error)
+    return {
+      items: (data ?? []).map((expense) => mapExpense(expense as unknown as RawExpense)),
+      total,
+      page,
+      limit: query.limit,
+      totalPages,
+    }
+  }
   async function listExpenses(token: string, userId: string, period?: ExpensePeriod): Promise<Expense[]> {
     const client = createInsforgeClient(baseUrl, token)
     const query = client.database
@@ -128,7 +173,7 @@ export function createExpenseRepository(baseUrl: string): ExpenseRepository {
     const { periodStart, periodEnd } = getPeriodBounds(period)
     const { data, error } = await client.database
       .from('expenses')
-      .select('amount, category:expense_categories(id, slug, name)')
+      .select('amount, expense_date, category:expense_categories(id, slug, name)')
       .eq('user_id', userId)
       .gte('expense_date', periodStart)
       .lte('expense_date', periodEnd)
@@ -136,6 +181,7 @@ export function createExpenseRepository(baseUrl: string): ExpenseRepository {
     if (error) throwDatabaseError('No se pudo consultar el resumen de gastos', error)
 
     const grouped = new Map<string, { category: ExpenseCategory; amount: number; expenseCount: number }>()
+    const dailyAmounts = new Map<string, number>()
     let totalAmount = 0
     let expenseCount = 0
 
@@ -146,6 +192,7 @@ export function createExpenseRepository(baseUrl: string): ExpenseRepository {
       current.amount += amount
       current.expenseCount += 1
       grouped.set(category.id, current)
+      dailyAmounts.set(rawExpense.expense_date, Number(((dailyAmounts.get(rawExpense.expense_date) ?? 0) + amount).toFixed(2)))
       totalAmount += amount
       expenseCount += 1
     }
@@ -171,6 +218,10 @@ export function createExpenseRepository(baseUrl: string): ExpenseRepository {
       totalAmount: roundedTotal,
       expenseCount,
       categories,
+      dailyTotals: enumerateDates(periodStart, periodEnd).map((date) => ({
+        date,
+        total: dailyAmounts.get(date) ?? 0,
+      })),
     }
   }
 
@@ -240,6 +291,7 @@ export function createExpenseRepository(baseUrl: string): ExpenseRepository {
   return {
     listCategories,
     listExpenses,
+    listExpensesPage,
     getSummary,
     createExpense,
     updateExpense,

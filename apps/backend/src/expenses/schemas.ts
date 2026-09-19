@@ -49,6 +49,21 @@ export const expenseIdParamsSchema = z.object({
   id: z.uuid('El gasto no es válido'),
 })
 
+export const expenseHistoryQuerySchema = z.object({
+  page: z.coerce.number().int('La página debe ser un entero').min(1, 'La página debe ser mayor que cero').default(1),
+  limit: z.coerce
+    .number()
+    .int('El límite debe ser un entero')
+    .min(1, 'El límite debe ser mayor que cero')
+    .max(100, 'El límite no puede superar 100')
+    .default(10),
+  search: z
+    .string()
+    .trim()
+    .max(100, 'La búsqueda no puede superar los 100 caracteres')
+    .optional(),
+})
+
 const periodTypeSchema = z.enum(['month', 'week'])
 
 const monthSchema = z
@@ -111,6 +126,7 @@ export const expenseListQuerySchema = expensePeriodFieldsSchema.superRefine((val
 })
 
 export type ExpenseSummaryQuery = z.infer<typeof expenseSummaryQuerySchema>
+export type ExpenseHistoryQuery = z.infer<typeof expenseHistoryQuerySchema>
 export type ExpenseListQuery = {
   period?: 'month' | 'week'
   month?: string

@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
 import { ZodError } from 'zod'
 import {
   createExpenseSchema,
+  expenseHistoryQuerySchema,
   expenseIdParamsSchema,
   expenseListQuerySchema,
   expenseSummaryQuerySchema,
@@ -50,6 +51,25 @@ export async function registerExpenseRoutes(app: FastifyInstance, options: Expen
   })
 
   app.get('/api/expenses', async (request, reply) => {
+    const rawQuery = (request.query ?? {}) as Record<string, unknown>
+    const wantsPage =
+      rawQuery.page !== undefined || rawQuery.limit !== undefined || rawQuery.search !== undefined
+
+    if (wantsPage) {
+      const parsed = expenseHistoryQuerySchema.safeParse(rawQuery)
+      if (!parsed.success) {
+        return sendError(reply, 422, 'VALIDATION_ERROR', 'Los parámetros de paginación no son válidos', parsed.error.flatten())
+      }
+
+      try {
+        const auth = requireAuth(request)
+        const page = await options.repository.listExpensesPage(auth.token, auth.user.usuarioId, parsed.data)
+        return { data: page }
+      } catch (error) {
+        return handleError(reply, error)
+      }
+    }
+
     const parsed = expenseListQuerySchema.safeParse(request.query)
     if (!parsed.success) {
       return sendError(reply, 422, 'VALIDATION_ERROR', 'El periodo de gastos no es válido', parsed.error.flatten())

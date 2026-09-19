@@ -137,7 +137,7 @@ describe('ExpenseSummary', () => {
       />
     ))
 
-    expect(screen.getByText('Total del periodo semanal')).toBeTruthy()
+    expect(screen.getByText('Total semanal')).toBeTruthy()
     expect(screen.getByLabelText('Semana del resumen')).toBeTruthy()
     expect(screen.queryByLabelText('Mes del resumen')).toBeNull()
     expect(screen.getByRole('progressbar', { name: 'Porcentaje de Alimentación' })).toBeTruthy()
@@ -149,7 +149,7 @@ describe('ExpenseSummary', () => {
       <ExpenseSummary {...defaultProps({ onPeriodTypeChange })} summary={summary} loading={false} error={null} />
     ))
 
-    fireEvent.click(screen.getByLabelText('Semana'))
+    fireEvent.click(screen.getByRole('button', { name: 'Semanal' }))
 
     expect(onPeriodTypeChange).toHaveBeenCalledWith('week')
   })
@@ -183,7 +183,7 @@ describe('ExpenseSummary', () => {
     expect(progressbar.getAttribute('aria-valuemin')).toBe('0')
     expect(progressbar.getAttribute('aria-valuemax')).toBe('100')
     expect(screen.getByText('Periodo')).toBeTruthy()
-    expect(screen.getByLabelText('Mes')).toBeTruthy()
-    expect(screen.getByLabelText('Semana')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Mensual' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Semanal' })).toBeTruthy()
   })
 })

@@ -5,6 +5,7 @@ import { getMonthBounds, getPeriodBounds, getWeekBounds } from './schemas'
 import type { ExpensePeriod } from './periods'
 import type { ExpenseRepository } from './repository'
 import type { CreateExpenseInput, Expense, ExpenseCategory, ExpenseSummary, UpdateExpenseInput } from './types'
+import type { ExpenseHistoryQuery, ExpensePage } from './types'
 
 const userId = '4e7a0f3e-232e-4e3a-bda2-495b1324b266'
 const otherUserId = '8b9c1d4e-1111-4e3a-bda2-495b1324b999'
@@ -94,6 +95,7 @@ function buildSummary(period: ExpensePeriod, items: Expense[]): ExpenseSummary {
     totalAmount: roundedTotal,
     expenseCount: items.length,
     categories,
+    dailyTotals: buildDailyTotals(period, items),
   }
 }
 
@@ -101,6 +103,22 @@ function filterByPeriod(items: Expense[], period?: ExpensePeriod): Expense[] {
   if (!period) return items
   const { periodStart, periodEnd } = getPeriodBounds(period)
   return items.filter((item) => item.expenseDate >= periodStart && item.expenseDate <= periodEnd)
+}
+
+function buildDailyTotals(period: ExpensePeriod, items: Expense[]) {
+  const { periodStart, periodEnd } = getPeriodBounds(period)
+  const dates: string[] = []
+  const current = new Date(`${periodStart}T00:00:00Z`)
+  const end = new Date(`${periodEnd}T00:00:00Z`)
+  while (current <= end) {
+    dates.push(current.toISOString().slice(0, 10))
+    current.setUTCDate(current.getUTCDate() + 1)
+  }
+  const totals = new Map<string, number>()
+  for (const item of items) {
+    totals.set(item.expenseDate, Number(((totals.get(item.expenseDate) ?? 0) + item.amount).toFixed(2)))
+  }
+  return dates.map((date) => ({ date, total: totals.get(date) ?? 0 }))
 }
 
 beforeAll(async () => {
@@ -138,13 +156,16 @@ function createRepository(): ExpenseRepository & {
   lastOwner?: string
   lastPeriod?: ExpensePeriod
   lastListPeriod?: ExpensePeriod
+  lastHistoryQuery?: ExpenseHistoryQuery
   summaryCalls: number
   listCalls: number
+  pageCalls: number
   summariesByKey?: Record<string, ExpenseSummary>
 } {
   return {
     summaryCalls: 0,
     listCalls: 0,
+    pageCalls: 0,
     async listCategories() {
       return [category]
     },
@@ -154,6 +175,29 @@ function createRepository(): ExpenseRepository & {
       this.listCalls = (this.listCalls ?? 0) + 1
       const owned = seedExpenses.filter((item) => item.ownerId === ownerId)
       return filterByPeriod(owned, period)
+    },
+    async listExpensesPage(_token, ownerId, query: ExpenseHistoryQuery): Promise<ExpensePage> {
+      this.lastOwner = ownerId
+      this.lastHistoryQuery = query
+      this.pageCalls = (this.pageCalls ?? 0) + 1
+      const term = query.search?.trim().toLowerCase()
+      const owned = seedExpenses.filter((item) => item.ownerId === ownerId)
+      const filtered = term
+        ? owned.filter((item) => item.description.toLowerCase().includes(term))
+        : owned
+      const sorted = [...filtered].sort(
+        (left, right) =>
+          right.expenseDate.localeCompare(left.expenseDate) || right.createdAt.localeCompare(left.createdAt),
+      )
+      const totalPages = Math.max(1, Math.ceil(sorted.length / query.limit))
+      const page = Math.min(query.page, totalPages)
+      return {
+        items: sorted.slice((page - 1) * query.limit, page * query.limit),
+        total: sorted.length,
+        page,
+        limit: query.limit,
+        totalPages,
+      }
     },
     async getSummary(_token, ownerId, period): Promise<ExpenseSummary> {
       this.lastOwner = ownerId
@@ -426,6 +470,164 @@ describe('expense list filtrado por periodo', () => {
   })
 })
 
+describe('expense history paginado y búsqueda', () => {
+  function buildHistoryApp(repository: ExpenseRepository) {
+    return createApp({
+      jwksUrl: `http://127.0.0.1:${jwksServer.port}/jwks`,
+      corsOrigin: ['http://localhost:5173'],
+      port: 0,
+      expenseRepository: repository,
+    })
+  }
+
+  test('devuelve página por defecto con 10 por página', async () => {
+    const repository = createRepository()
+    const app = buildHistoryApp(repository)
+    const token = await signToken()
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/expenses?page=1',
+      headers: { authorization: `Bearer ${token}` },
+    })
+
+    expect(response.statusCode).toBe(200)
+    const data = response.json().data as ExpensePage
+    expect(data.total).toBe(7)
+    expect(data.page).toBe(1)
+    expect(data.limit).toBe(10)
+    expect(data.totalPages).toBe(1)
+    expect(data.items).toHaveLength(7)
+    expect(repository.lastOwner).toBe(userId)
+    expect(repository.lastHistoryQuery).toEqual({ page: 1, limit: 10, search: undefined })
+    await app.close()
+  })
+
+  test('pagina con límite personalizado y orden descendente', async () => {
+    const repository = createRepository()
+    const app = buildHistoryApp(repository)
+    const token = await signToken()
+
+    const first = await app.inject({
+      method: 'GET',
+      url: '/api/expenses?page=1&limit=2',
+      headers: { authorization: `Bearer ${token}` },
+    })
+    expect(first.statusCode).toBe(200)
+    const firstData = first.json().data as ExpensePage
+    expect(firstData.total).toBe(7)
+    expect(firstData.totalPages).toBe(4)
+    expect(firstData.items.map((item) => item.expenseDate)).toEqual(['2026-09-20', '2026-09-12'])
+
+    const second = await app.inject({
+      method: 'GET',
+      url: '/api/expenses?page=2&limit=2',
+      headers: { authorization: `Bearer ${token}` },
+    })
+    expect(second.statusCode).toBe(200)
+    const secondData = second.json().data as ExpensePage
+    expect(secondData.page).toBe(2)
+    expect(secondData.items).toHaveLength(2)
+    expect(secondData.items.map((item) => item.expenseDate)).toEqual(['2026-09-08', '2026-09-05'])
+    await app.close()
+  })
+
+  test('busca por descripción sin distinguir mayúsculas', async () => {
+    const repository = createRepository()
+    const app = buildHistoryApp(repository)
+    const token = await signToken()
+
+    const lower = await app.inject({
+      method: 'GET',
+      url: '/api/expenses?search=almuerzo',
+      headers: { authorization: `Bearer ${token}` },
+    })
+    expect(lower.statusCode).toBe(200)
+    const lowerData = lower.json().data as ExpensePage
+    expect(lowerData.total).toBe(1)
+    expect(lowerData.items[0]?.description).toBe('Almuerzo')
+
+    const upper = await app.inject({
+      method: 'GET',
+      url: '/api/expenses?search=ALMUERZO',
+      headers: { authorization: `Bearer ${token}` },
+    })
+    expect(upper.statusCode).toBe(200)
+    expect((upper.json().data as ExpensePage).total).toBe(1)
+
+    const partial = await app.inject({
+      method: 'GET',
+      url: '/api/expenses?search=gasto 2026-09',
+      headers: { authorization: `Bearer ${token}` },
+    })
+    expect(partial.statusCode).toBe(200)
+    expect((partial.json().data as ExpensePage).total).toBe(3)
+    await app.close()
+  })
+
+  test('búsqueda sin resultados devuelve página vacía', async () => {
+    const repository = createRepository()
+    const app = buildHistoryApp(repository)
+    const token = await signToken()
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/expenses?search=inexistente-xyz',
+      headers: { authorization: `Bearer ${token}` },
+    })
+
+    expect(response.statusCode).toBe(200)
+    const data = response.json().data as ExpensePage
+    expect(data).toEqual({ items: [], total: 0, page: 1, limit: 10, totalPages: 1 })
+    await app.close()
+  })
+
+  test('limita la página al total disponible', async () => {
+    const repository = createRepository()
+    const app = buildHistoryApp(repository)
+    const token = await signToken()
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/expenses?page=99&limit=2',
+      headers: { authorization: `Bearer ${token}` },
+    })
+
+    expect(response.statusCode).toBe(200)
+    const data = response.json().data as ExpensePage
+    expect(data.page).toBe(4)
+    expect(data.items).toHaveLength(1)
+    await app.close()
+  })
+
+  test('responde 422 con paginación inválida y no consulta el repositorio', async () => {
+    const repository = createRepository()
+    const app = buildHistoryApp(repository)
+    const token = await signToken()
+    const invalidUrls = [
+      '/api/expenses?page=0',
+      '/api/expenses?page=-1',
+      '/api/expenses?page=abc',
+      '/api/expenses?limit=0',
+      '/api/expenses?limit=101',
+      '/api/expenses?limit=abc',
+    ]
+
+    for (const url of invalidUrls) {
+      const response = await app.inject({
+        method: 'GET',
+        url,
+        headers: { authorization: `Bearer ${token}` },
+      })
+      expect(response.statusCode).toBe(422)
+      expect(response.json().error.code).toBe('VALIDATION_ERROR')
+    }
+
+    expect(repository.pageCalls).toBe(0)
+    await app.close()
+  })
+})
+
 describe('expense summary', () => {
   function buildSummaryApp(repository: ExpenseRepository) {
     return createApp({
@@ -460,6 +662,11 @@ describe('expense summary', () => {
     expect(data.categories.reduce((sum, item) => sum + item.amount, 0)).toBe(data.totalAmount)
     expect(data.categories.reduce((sum, item) => sum + item.expenseCount, 0)).toBe(data.expenseCount)
     expect(data.categories.reduce((sum, item) => sum + item.percentage, 0)).toBeCloseTo(100, 1)
+    expect(data.dailyTotals).toHaveLength(30)
+    expect(data.dailyTotals[0]?.date).toBe('2026-09-01')
+    expect(data.dailyTotals[29]?.date).toBe('2026-09-30')
+    expect(data.dailyTotals.every((item) => typeof item.total === 'number')).toBe(true)
+    expect(Number(data.dailyTotals.reduce((sum, item) => sum + item.total, 0).toFixed(2))).toBe(data.totalAmount)
     expect(repository.lastOwner).toBe(userId)
     expect(repository.lastPeriod).toEqual({ type: 'month', month: '2026-09' })
     await app.close()
@@ -509,6 +716,16 @@ describe('expense summary', () => {
     expect(data.totalAmount).toBe(45.5)
     expect(data.expenseCount).toBe(2)
     expect(data.categories).toHaveLength(1)
+    expect(data.dailyTotals.map((item) => item.date)).toEqual([
+      '2026-09-07',
+      '2026-09-08',
+      '2026-09-09',
+      '2026-09-10',
+      '2026-09-11',
+      '2026-09-12',
+      '2026-09-13',
+    ])
+    expect(Number(data.dailyTotals.reduce((sum, item) => sum + item.total, 0).toFixed(2))).toBe(data.totalAmount)
     expect(repository.lastPeriod).toEqual({ type: 'week', weekStart: '2026-09-07' })
     await app.close()
   })
@@ -582,6 +799,7 @@ describe('expense summary', () => {
       totalAmount: 0,
       expenseCount: 0,
       categories: [],
+      dailyTotals: buildDailyTotals({ type: 'month', month: '2026-07' }, []),
     })
 
     const emptyWeek = await app.inject({
@@ -599,6 +817,7 @@ describe('expense summary', () => {
       totalAmount: 0,
       expenseCount: 0,
       categories: [],
+      dailyTotals: buildDailyTotals({ type: 'week', weekStart: '2026-09-21' }, []),
     })
     await app.close()
   })
@@ -724,6 +943,7 @@ describe('expense summary', () => {
           { categoryId: 'cat-a', slug: 'a', name: 'A', amount: 20.75, expenseCount: 2, percentage: 66.4 },
           { categoryId: 'cat-b', slug: 'b', name: 'B', amount: 10.5, expenseCount: 1, percentage: 33.6 },
         ],
+        dailyTotals: buildDailyTotals({ type: 'month', month: '2026-09' }, []),
       },
     }
     const app = buildSummaryApp(repository)

@@ -1,5 +1,7 @@
 import { For, Show } from 'solid-js'
 import { formatCurrency, formatDate } from '../lib/format'
+import { resolveDailyTotals } from '../lib/charts'
+import { CategoryDonutChart, MonthlyTrendChart, WeeklyBarChart } from './charts/SummaryCharts'
 import type { ExpensePeriodType, ExpenseSummary as ExpenseSummaryData } from '../lib/expenses'
 
 interface ExpenseSummaryProps {
@@ -12,12 +14,25 @@ interface ExpenseSummaryProps {
   summary: ExpenseSummaryData | undefined
   loading: boolean
   error: string | null
+  expenses?: Array<{ expenseDate: string; amount: number }>
 }
 
 const inputClass =
   'w-full box-border min-w-36 rounded-md border border-finzz-border bg-finzz-bg px-3 py-2.5 text-finzz-heading'
 
+const toggleActiveClass = 'bg-finzz-heading text-finzz-bg'
+const toggleInactiveClass = 'bg-transparent text-finzz-heading hover:bg-finzz-accent-bg'
+
 export default function ExpenseSummary(props: ExpenseSummaryProps) {
+  const dailyTotals = () =>
+    props.summary ? resolveDailyTotals(props.summary, props.expenses ?? []) : []
+  const donutCategories = () =>
+    (props.summary?.categories ?? []).map((category) => ({
+      name: category.name,
+      amount: category.amount,
+      percentage: category.percentage,
+    }))
+
   return (
     <section
       aria-labelledby="expense-summary-title"
@@ -35,27 +50,23 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
         </div>
         <fieldset class="grid gap-1.5 text-xs text-finzz-heading">
           <legend>Periodo</legend>
-          <div class="flex gap-4">
-            <label class="flex items-center gap-1.5">
-              <input
-                type="radio"
-                name="expense-period"
-                value="month"
-                checked={props.periodType === 'month'}
-                onChange={() => props.onPeriodTypeChange('month')}
-              />
-              Mes
-            </label>
-            <label class="flex items-center gap-1.5">
-              <input
-                type="radio"
-                name="expense-period"
-                value="week"
-                checked={props.periodType === 'week'}
-                onChange={() => props.onPeriodTypeChange('week')}
-              />
-              Semana
-            </label>
+          <div role="group" aria-label="Tipo de periodo" class="flex gap-1 rounded-lg border border-finzz-border bg-finzz-bg p-1">
+            <button
+              type="button"
+              aria-pressed={props.periodType === 'month'}
+              onClick={() => props.onPeriodTypeChange('month')}
+              class={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${props.periodType === 'month' ? toggleActiveClass : toggleInactiveClass}`}
+            >
+              Mensual
+            </button>
+            <button
+              type="button"
+              aria-pressed={props.periodType === 'week'}
+              onClick={() => props.onPeriodTypeChange('week')}
+              class={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${props.periodType === 'week' ? toggleActiveClass : toggleInactiveClass}`}
+            >
+              Semanal
+            </button>
           </div>
           <Show
             when={props.periodType === 'month'}
@@ -99,7 +110,7 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
           <>
             <div class="grid grid-cols-2 gap-3">
               <div class="rounded-lg bg-finzz-accent-bg p-4">
-                <span class="block text-xs">Total del {props.periodType === 'week' ? 'periodo semanal' : 'mes'}</span>
+                <span class="block text-xs">{props.periodType === 'week' ? 'Total semanal' : 'Total del mes'}</span>
                 <strong class="mt-1 block text-2xl text-finzz-heading">{formatCurrency(summary().totalAmount)}</strong>
               </div>
               <div class="rounded-lg bg-finzz-accent-bg p-4">
@@ -112,6 +123,36 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
               when={summary().categories.length > 0}
               fallback={<p role="status">No hay gastos en el periodo seleccionado.</p>}
             >
+              <Show
+                when={props.periodType === 'month'}
+                fallback={
+                  <figure class="m-0 rounded-lg bg-finzz-bg p-4">
+                    <figcaption class="mb-2 text-sm font-semibold text-finzz-heading">Gasto de la semana</figcaption>
+                    <WeeklyBarChart
+                      data={dailyTotals()}
+                      label={`Gasto de la semana del ${formatDate(summary().periodStart)} al ${formatDate(summary().periodEnd)}`}
+                    />
+                  </figure>
+                }
+              >
+                <figure class="m-0 rounded-lg bg-finzz-bg p-4">
+                  <figcaption class="mb-2 text-sm font-semibold text-finzz-heading">Evolución del gasto del mes</figcaption>
+                  <MonthlyTrendChart
+                    data={dailyTotals()}
+                    label={`Evolución del gasto de ${summary().periodKey}`}
+                  />
+                </figure>
+              </Show>
+
+              <figure class="m-0 rounded-lg bg-finzz-bg p-4">
+                <figcaption class="mb-2 text-sm font-semibold text-finzz-heading">Gastos por categoría</figcaption>
+                <CategoryDonutChart
+                  categories={donutCategories()}
+                  total={summary().totalAmount}
+                  label={`Gastos por categoría, total ${formatCurrency(summary().totalAmount)}`}
+                />
+              </figure>
+
               <div class="grid gap-4" aria-label="Gasto por categoría">
                 <For each={summary().categories}>
                   {(category) => (

@@ -68,3 +68,14 @@ export function getWeekBounds(weekStart: string): ExpensePeriodBounds {
 export function getPeriodBounds(period: ExpensePeriod): ExpensePeriodBounds {
   return period.type === 'month' ? getMonthBounds(period.month) : getWeekBounds(period.weekStart)
 }
+
+export function enumerateDates(periodStart: string, periodEnd: string): string[] {
+  const dates: string[] = []
+  const current = new Date(`${periodStart}T00:00:00Z`)
+  const end = new Date(`${periodEnd}T00:00:00Z`)
+  while (current <= end) {
+    dates.push(current.toISOString().slice(0, 10))
+    current.setUTCDate(current.getUTCDate() + 1)
+  }
+  return dates
+}

@@ -38,6 +38,19 @@ export interface ExpenseSummaryCategory {
   percentage: number
 }
 
+export interface ExpenseSummaryDay {
+  date: string
+  total: number
+}
+
+export interface ExpensePage {
+  items: Expense[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
 export interface ExpenseSummary {
   period: ExpensePeriodType
   periodKey: string
@@ -48,6 +61,7 @@ export interface ExpenseSummary {
   totalAmount: number
   expenseCount: number
   categories: ExpenseSummaryCategory[]
+  dailyTotals?: ExpenseSummaryDay[]
 }
 
 interface ApiErrorResponse {
@@ -93,6 +107,12 @@ function periodSearchParams(period: ExpensePeriod): string {
 export function listExpenses(period?: ExpensePeriod): Promise<Expense[]> {
   const query = period ? `?${periodSearchParams(period)}` : ''
   return request<Expense[]>(`/api/expenses${query}`)
+}
+
+export function listExpensesPage(params: { page: number; limit: number; search?: string }): Promise<ExpensePage> {
+  const query = new URLSearchParams({ page: String(params.page), limit: String(params.limit) })
+  if (params.search?.trim()) query.set('search', params.search.trim())
+  return request<ExpensePage>(`/api/expenses?${query.toString()}`)
 }
 
 export function getExpenseSummary(period: ExpensePeriod): Promise<ExpenseSummary> {

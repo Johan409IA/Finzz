@@ -39,6 +39,24 @@ export interface ExpenseSummaryCategory {
 
 export type ExpensePeriodType = 'month' | 'week'
 
+export interface ExpenseSummaryDay {
+  date: string
+  total: number
+}
+
+export interface ExpenseHistoryQuery {
+  page: number
+  limit: number
+  search?: string
+}
+
+export interface ExpensePage {
+  items: Expense[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
 export interface ExpenseSummary {
   period: ExpensePeriodType
   periodKey: string
@@ -49,4 +67,5 @@ export interface ExpenseSummary {
   totalAmount: number
   expenseCount: number
   categories: ExpenseSummaryCategory[]
+  dailyTotals: ExpenseSummaryDay[]
 }
