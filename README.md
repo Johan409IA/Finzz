@@ -9,7 +9,7 @@ El alcance actual se centra en:
 - Consultar, editar y eliminar gastos propios.
 - Consultar un resumen mensual y semanal con el importe total, la cantidad de gastos y la distribución por categoría.
 
-> Nota: el código actual implementa el resumen mensual. Todavía no existe un endpoint ni una vista independiente para resúmenes semanales. Usar TailwindCSS en el frontend. Usar logotipos en Finzz. Cambiar la moneda a soles.
+> Nota: el código actual implementa el resumen mensual y semanal.
 
 ## Funcionalidades
 

@@ -1,11 +1,11 @@
 import { createSignal } from 'solid-js'
 import { useNavigate } from '@solidjs/router'
+import Lock from 'lucide-solid/icons/lock'
+import Mail from 'lucide-solid/icons/mail'
+import User from 'lucide-solid/icons/user'
+import { AuthField, AuthScreen, authErrorClass, authInfoClass, authLinkClass, authLinkLineClass, authSubmitClass } from '../components/AuthScreen'
 import { insforge } from '../lib/insforge'
 import { useAuth } from '../lib/auth'
-
-const inputClass =
-  'w-full box-border rounded-md border border-finzz-border bg-finzz-bg px-3 py-2.5 text-finzz-heading'
-const labelClass = 'grid gap-1.5 text-left text-sm text-finzz-heading'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -47,61 +47,49 @@ export default function RegisterPage() {
   }
 
   return (
-    <div class="mx-auto w-[min(100%-2rem,1120px)] max-w-md px-4 py-16">
-      <div class="mb-8 flex flex-col items-center gap-3 text-center">
-        <img src="/logo.png" alt="Logotipo de Finzz" class="h-16 w-16 rounded-2xl object-contain" />
-        <h1 class="m-0 text-4xl font-medium tracking-tight text-finzz-heading">Crear cuenta</h1>
-      </div>
-      <form
-        onSubmit={handleSubmit}
-        class="grid gap-4 rounded-xl border border-finzz-border bg-finzz-surface p-6"
-      >
-        <label class={labelClass}>
-          Nombre
-          <input
-            type="text"
-            value={name()}
-            onInput={(e) => setName(e.currentTarget.value)}
-            autocomplete="name"
-            class={inputClass}
-          />
-        </label>
-        <label class={labelClass}>
-          Email
-          <input
-            type="email"
-            value={email()}
-            onInput={(e) => setEmail(e.currentTarget.value)}
-            required
-            autocomplete="email"
-            class={inputClass}
-          />
-        </label>
-        <label class={labelClass}>
-          Contraseña
-          <input
-            type="password"
-            value={password()}
-            onInput={(e) => setPassword(e.currentTarget.value)}
-            required
-            minLength={6}
-            autocomplete="new-password"
-            class={inputClass}
-          />
-        </label>
-        {error() && <p class="text-finzz-danger" role="alert">{error()}</p>}
-        {info() && <p class="text-finzz-success" role="status">{info()}</p>}
-        <button
-          type="submit"
-          disabled={loading()}
-          class="rounded-md border border-transparent bg-finzz-accent px-3 py-2 text-sm text-white transition-colors hover:bg-finzz-accent-strong disabled:cursor-not-allowed disabled:opacity-55"
-        >
-          {loading() ? 'Creando…' : 'Crear cuenta'}
-        </button>
-      </form>
-      <p class="mt-4 text-center">
-        ¿Ya tienes cuenta? <a class="underline" href="/login">Inicia sesión</a>
+    <AuthScreen
+      title="Crear cuenta"
+      subtitle="Crea tu cuenta para empezar a controlar tus gastos personales"
+      onSubmit={handleSubmit}
+    >
+      <AuthField
+        label="Nombre"
+        icon={<User size={20} strokeWidth={1.8} />}
+        type="text"
+        value={name()}
+        onInput={setName}
+        autocomplete="name"
+        placeholder="Tu nombre"
+      />
+      <AuthField
+        label="Email"
+        icon={<Mail size={20} strokeWidth={1.8} />}
+        type="email"
+        value={email()}
+        onInput={setEmail}
+        required
+        autocomplete="email"
+        placeholder="tu@email.com"
+      />
+      <AuthField
+        label="Contraseña"
+        icon={<Lock size={20} strokeWidth={1.8} />}
+        type="password"
+        value={password()}
+        onInput={setPassword}
+        required
+        autocomplete="new-password"
+        placeholder="••••••••"
+        minLength={6}
+      />
+      {error() && <p class={authErrorClass} role="alert">{error()}</p>}
+      {info() && <p class={authInfoClass} role="status">{info()}</p>}
+      <button type="submit" disabled={loading()} class={authSubmitClass}>
+        {loading() ? 'Creando…' : 'Crear cuenta'}
+      </button>
+      <p class={authLinkLineClass}>
+        ¿Ya tienes una cuenta? <a class={authLinkClass} href="/login">Inicia sesión</a>
       </p>
-    </div>
+    </AuthScreen>
   )
 }

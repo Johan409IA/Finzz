@@ -1,14 +1,15 @@
 {
   "name": "finzz",
-  "private": true,
-  "workspaces": ["apps/*"], 
-  "scripts": {
-    "dev": "bun run --parallel --filter '*' dev"
-  },
+  "workspaces": ["apps/*"],
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "bun run --parallel --filter '*' dev"
   }
+
 }

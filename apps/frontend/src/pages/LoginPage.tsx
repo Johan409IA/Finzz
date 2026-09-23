@@ -1,11 +1,10 @@
-import { createSignal, onMount, type ParentProps } from 'solid-js'
+import { createSignal, onMount } from 'solid-js'
 import { useNavigate } from '@solidjs/router'
+import Lock from 'lucide-solid/icons/lock'
+import Mail from 'lucide-solid/icons/mail'
+import { AuthField, AuthScreen, authErrorClass, authInfoClass, authLinkClass, authLinkLineClass, authSubmitClass } from '../components/AuthScreen'
 import { insforge } from '../lib/insforge'
 import { useAuth } from '../lib/auth'
-
-const inputClass =
-  'w-full box-border rounded-md border border-finzz-border bg-finzz-bg px-3 py-2.5 text-finzz-heading'
-const labelClass = 'grid gap-1.5 text-left text-sm text-finzz-heading'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -61,54 +60,39 @@ export default function LoginPage() {
   }
 
   return (
-    <div class="mx-auto w-[min(100%-2rem,1120px)] max-w-md px-4 py-16">
-      <div class="mb-8 flex flex-col items-center gap-3 text-center">
-        <img src="/logo.png" alt="Logotipo de Finzz" class="h-16 w-16 rounded-2xl object-contain" />
-        <h1 class="m-0 text-4xl font-medium tracking-tight text-finzz-heading">Iniciar sesión</h1>
-      </div>
-      <form
-        onSubmit={handleSubmit}
-        class="grid gap-4 rounded-xl border border-finzz-border bg-finzz-surface p-6"
-      >
-        <label class={labelClass}>
-          Email
-          <input
-            type="email"
-            value={email()}
-            onInput={(e) => setEmail(e.currentTarget.value)}
-            required
-            autocomplete="email"
-            class={inputClass}
-          />
-        </label>
-        <label class={labelClass}>
-          Contraseña
-          <input
-            type="password"
-            value={password()}
-            onInput={(e) => setPassword(e.currentTarget.value)}
-            required
-            autocomplete="current-password"
-            class={inputClass}
-          />
-        </label>
-        {error() && <p class="text-finzz-danger" role="alert">{error()}</p>}
-        {info() && <p class="text-finzz-success" role="status">{info()}</p>}
-        <button
-          type="submit"
-          disabled={loading()}
-          class="rounded-md border border-transparent bg-finzz-accent px-3 py-2 text-sm text-white transition-colors hover:bg-finzz-accent-strong disabled:cursor-not-allowed disabled:opacity-55"
-        >
-          {loading() ? 'Entrando…' : 'Entrar'}
-        </button>
-      </form>
-      <p class="mt-4 text-center">
-        ¿No tienes cuenta? <a class="underline" href="/registro">Regístrate</a>
+    <AuthScreen
+      title="Iniciar sesión"
+      subtitle="Accede para controlar tus gastos personales"
+      onSubmit={handleSubmit}
+    >
+      <AuthField
+        label="Email"
+        icon={<Mail size={20} strokeWidth={1.8} />}
+        type="email"
+        value={email()}
+        onInput={setEmail}
+        required
+        autocomplete="email"
+        placeholder="tu@email.com"
+      />
+      <AuthField
+        label="Contraseña"
+        icon={<Lock size={20} strokeWidth={1.8} />}
+        type="password"
+        value={password()}
+        onInput={setPassword}
+        required
+        autocomplete="current-password"
+        placeholder="••••••••"
+      />
+      {error() && <p class={authErrorClass} role="alert">{error()}</p>}
+      {info() && <p class={authInfoClass} role="status">{info()}</p>}
+      <button type="submit" disabled={loading()} class={authSubmitClass}>
+        {loading() ? 'Entrando…' : 'Entrar'}
+      </button>
+      <p class={authLinkLineClass}>
+        ¿No tienes cuenta? <a class={authLinkClass} href="/registro">Regístrate</a>
       </p>
-    </div>
+    </AuthScreen>
   )
-}
-
-export function AuthLayout(props: ParentProps) {
-  return <main>{props.children}</main>
 }

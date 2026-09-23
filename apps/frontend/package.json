@@ -14,6 +14,7 @@
     "@insforge/sdk": "^1.5.2",
     "@solidjs/router": "^1.0.0",
     "echarts": "^6.1.0",
+    "lucide-solid": "^1.47.0",
     "solid-js": "^1.9.14"
   },
   "devDependencies": {

@@ -24,7 +24,7 @@ function RootRedirect() {
 
 function Layout(props: RouteSectionProps) {
   return (
-    <div class="mx-auto flex min-h-svh w-full max-w-[1126px] flex-col border-x border-finzz-border bg-finzz-bg text-finzz-text">
+    <div class="flex min-h-svh w-full flex-col bg-finzz-bg text-finzz-text">
       {props.children}
     </div>
   )
