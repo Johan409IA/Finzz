@@ -13,6 +13,10 @@ export function formatDate(date: string): string {
   }).format(new Date(`${date}T00:00:00Z`))
 }
 
+export function formatTodayLong(): string {
+  return new Intl.DateTimeFormat('es-PE', { dateStyle: 'long' }).format(new Date())
+}
+
 export function currentMonth(): string {
   return new Date().toISOString().slice(0, 7)
 }

@@ -1,8 +1,17 @@
 import { createSignal, onMount } from 'solid-js'
-import { useNavigate } from '@solidjs/router'
+import { A, useNavigate } from '@solidjs/router'
 import Lock from 'lucide-solid/icons/lock'
 import Mail from 'lucide-solid/icons/mail'
-import { AuthField, AuthScreen, authErrorClass, authInfoClass, authLinkClass, authLinkLineClass, authSubmitClass } from '../components/AuthScreen'
+import {
+  AuthField,
+  AuthScreen,
+  AuthSubmitButton,
+  authErrorClass,
+  authInfoClass,
+  authLinkClass,
+  authLinkLineClass,
+  validateEmail,
+} from '../components/AuthScreen'
 import { insforge } from '../lib/insforge'
 import { useAuth } from '../lib/auth'
 
@@ -11,9 +20,13 @@ export default function LoginPage() {
   const { refresh } = useAuth()
   const [email, setEmail] = createSignal('')
   const [password, setPassword] = createSignal('')
+  const [emailError, setEmailError] = createSignal<string | null>(null)
+  const [passwordError, setPasswordError] = createSignal<string | null>(null)
   const [error, setError] = createSignal<string | null>(null)
   const [info, setInfo] = createSignal<string | null>(null)
   const [loading, setLoading] = createSignal(false)
+  let emailInput: HTMLInputElement | undefined
+  let passwordInput: HTMLInputElement | undefined
 
   onMount(() => {
     const params = new URLSearchParams(window.location.search)
@@ -32,10 +45,28 @@ export default function LoginPage() {
     }
   })
 
+  function validateCredentials() {
+    const emailMessage = validateEmail(email())
+    const passwordMessage = password() ? null : 'Escribe tu contraseña.'
+    setEmailError(emailMessage)
+    setPasswordError(passwordMessage)
+
+    if (emailMessage) {
+      emailInput?.focus()
+      return false
+    }
+    if (passwordMessage) {
+      passwordInput?.focus()
+      return false
+    }
+    return true
+  }
+
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault()
     setError(null)
     setInfo(null)
+    if (!validateCredentials()) return
     setLoading(true)
     try {
       const { error: authError } = await insforge.auth.signInWithPassword({
@@ -70,7 +101,12 @@ export default function LoginPage() {
         icon={<Mail size={20} strokeWidth={1.8} />}
         type="email"
         value={email()}
-        onInput={setEmail}
+        onInput={(value) => {
+          setEmail(value)
+          setEmailError(null)
+        }}
+        error={emailError()}
+        inputRef={(element) => (emailInput = element)}
         required
         autocomplete="email"
         placeholder="tu@email.com"
@@ -80,18 +116,21 @@ export default function LoginPage() {
         icon={<Lock size={20} strokeWidth={1.8} />}
         type="password"
         value={password()}
-        onInput={setPassword}
+        onInput={(value) => {
+          setPassword(value)
+          setPasswordError(null)
+        }}
+        error={passwordError()}
+        inputRef={(element) => (passwordInput = element)}
         required
         autocomplete="current-password"
         placeholder="••••••••"
       />
       {error() && <p class={authErrorClass} role="alert">{error()}</p>}
       {info() && <p class={authInfoClass} role="status">{info()}</p>}
-      <button type="submit" disabled={loading()} class={authSubmitClass}>
-        {loading() ? 'Entrando…' : 'Entrar'}
-      </button>
+      <AuthSubmitButton loading={loading()} label="Entrar" loadingLabel="Entrando…" />
       <p class={authLinkLineClass}>
-        ¿No tienes cuenta? <a class={authLinkClass} href="/registro">Regístrate</a>
+        ¿No tienes cuenta? <A class={authLinkClass} href="/registro">Regístrate</A>
       </p>
     </AuthScreen>
   )

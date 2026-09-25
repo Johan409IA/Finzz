@@ -9,8 +9,6 @@ const mocks = vi.hoisted(() => ({
   listCategories: vi.fn(),
   getExpenseSummary: vi.fn(),
   createExpense: vi.fn(),
-  updateExpense: vi.fn(),
-  deleteExpense: vi.fn(),
 }))
 
 vi.mock('../lib/expenses', () => mocks)
@@ -65,6 +63,16 @@ const summaryWeek: ExpenseSummary = {
   ],
 }
 
+const existingExpense: Expense = {
+  id: 'expense-1',
+  amount: 25.5,
+  expenseDate: '2026-09-12',
+  description: 'Almuerzo',
+  category: categories[0]!,
+  createdAt: '2026-09-12T10:00:00.000Z',
+  updatedAt: '2026-09-12T10:00:00.000Z',
+}
+
 function periodKey(period: ExpensePeriod): string {
   return period.type === 'month' ? period.month : period.weekStart
 }
@@ -86,8 +94,12 @@ function mockInitial(summary = summarySeptember) {
     createdAt: '2026-09-12T10:00:00.000Z',
     updatedAt: '2026-09-12T10:00:00.000Z',
   } as Expense)
-  mocks.updateExpense.mockResolvedValue({} as Expense)
-  mocks.deleteExpense.mockResolvedValue(undefined)
+}
+
+async function waitForSummary() {
+  await waitFor(() => {
+    expect(screen.getByText('Total del mes')).toBeTruthy()
+  })
 }
 
 describe('DashboardPage expense summary', () => {
@@ -102,9 +114,7 @@ describe('DashboardPage expense summary', () => {
     render(() => <DashboardPage />)
 
     expect(screen.getByText(/cargando resumen/i)).toBeTruthy()
-    await waitFor(() => {
-      expect(screen.getByText('Total del mes')).toBeTruthy()
-    })
+    await waitForSummary()
     expect(periodKey(mocks.getExpenseSummary.mock.calls[0][0] as ExpensePeriod)).toBe(expectedMonth)
     expect(screen.getAllByText('Alimentación').length).toBeGreaterThan(0)
   })
@@ -114,9 +124,7 @@ describe('DashboardPage expense summary', () => {
 
     render(() => <DashboardPage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Total del mes')).toBeTruthy()
-    })
+    await waitForSummary()
     mocks.getExpenseSummary.mockClear()
 
     const monthInput = screen.getByLabelText('Mes del resumen') as HTMLInputElement
@@ -134,7 +142,23 @@ describe('DashboardPage expense summary', () => {
     })
   })
 
-  test('refresca el resumen tras crear un gasto', async () => {
+  test('el registro de gasto vive en un modal que abre el botón Registrar gasto', async () => {
+    mockInitial()
+
+    render(() => <DashboardPage />)
+
+    await waitForSummary()
+    expect(screen.queryByRole('form', { name: 'Nuevo gasto' })).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Registrar gasto' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Registrar gasto' })).toBeTruthy()
+    })
+    expect(screen.getByRole('form', { name: 'Nuevo gasto' })).toBeTruthy()
+  })
+
+  test('refresca el resumen tras crear un gasto desde el modal', async () => {
     const updatedSummary: ExpenseSummary = {
       ...summarySeptember,
       totalAmount: 150,
@@ -153,15 +177,16 @@ describe('DashboardPage expense summary', () => {
       createdAt: '2026-09-12T10:00:00.000Z',
       updatedAt: '2026-09-12T10:00:00.000Z',
     } as Expense)
-    mocks.updateExpense.mockResolvedValue({} as Expense)
-    mocks.deleteExpense.mockResolvedValue(undefined)
 
     render(() => <DashboardPage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Total del mes')).toBeTruthy()
-    })
+    await waitForSummary()
     const initialCalls = mocks.getExpenseSummary.mock.calls.length
+
+    fireEvent.click(screen.getByRole('button', { name: 'Registrar gasto' }))
+    await waitFor(() => {
+      expect(screen.getByRole('form', { name: 'Nuevo gasto' })).toBeTruthy()
+    })
 
     fireEvent.input(screen.getByLabelText('Importe'), { target: { value: '50' } })
     fireEvent.input(screen.getByLabelText('Descripción'), { target: { value: 'Compra' } })
@@ -178,44 +203,25 @@ describe('DashboardPage expense summary', () => {
     })
   })
 
-  test('refresca el resumen tras eliminar un gasto', async () => {
-    const existing: Expense = {
-      id: 'expense-1',
-      amount: 25.5,
-      expenseDate: '2026-09-12',
-      description: 'Almuerzo',
-      category: categories[0],
-      createdAt: '2026-09-12T10:00:00.000Z',
-      updatedAt: '2026-09-12T10:00:00.000Z',
-    }
-    mocks.listExpenses.mockResolvedValue([])
-    mocks.listExpensesPage.mockResolvedValue({ items: [existing], total: 1, page: 1, limit: 5, totalPages: 1 } as ExpensePage)
-    mocks.listCategories.mockResolvedValue(categories)
-    mocks.getExpenseSummary.mockResolvedValue(summarySeptember)
-    mocks.createExpense.mockResolvedValue(existing)
-    mocks.updateExpense.mockResolvedValue(existing)
-    mocks.deleteExpense.mockResolvedValue(undefined)
-    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+  test('la lista de últimos gastos es de solo lectura: sin editar ni eliminar', async () => {
+    mockInitial()
+    mocks.listExpensesPage.mockResolvedValue({
+      items: [existingExpense],
+      total: 1,
+      page: 1,
+      limit: 5,
+      totalPages: 1,
+    } as ExpensePage)
 
     render(() => <DashboardPage />)
 
     await waitFor(() => {
       expect(screen.getByText('Almuerzo')).toBeTruthy()
     })
-    const initialCalls = mocks.getExpenseSummary.mock.calls.length
-
-    fireEvent.click(screen.getByRole('button', { name: 'Eliminar' }))
-
-    await waitFor(() => {
-      expect(mocks.deleteExpense).toHaveBeenCalledWith('expense-1')
-    })
-    await waitFor(() => {
-      expect(mocks.getExpenseSummary.mock.calls.length).toBeGreaterThan(initialCalls)
-    })
-    await waitFor(() => {
-      expect(screen.getByText(/gasto eliminado correctamente/i)).toBeTruthy()
-    })
-    confirmSpy.mockRestore()
+    expect(screen.getByRole('heading', { name: 'Últimos 5 gastos' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Editar' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Eliminar' })).toBeNull()
+    expect(screen.queryByRole('link', { name: /ver historial/i })).toBeNull()
   })
 
   test('cambia a periodo semanal y consulta con weekStart', async () => {
@@ -228,9 +234,7 @@ describe('DashboardPage expense summary', () => {
 
     render(() => <DashboardPage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Total del mes')).toBeTruthy()
-    })
+    await waitForSummary()
     mocks.getExpenseSummary.mockClear()
     mocks.listExpenses.mockClear()
 
@@ -258,9 +262,7 @@ describe('DashboardPage expense summary', () => {
 
     render(() => <DashboardPage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Total del mes')).toBeTruthy()
-    })
+    await waitForSummary()
     expect(mocks.listExpensesPage).toHaveBeenCalledWith({ page: 1, limit: 5 })
     const callsBefore = mocks.listExpensesPage.mock.calls.length
 
@@ -277,9 +279,7 @@ describe('DashboardPage expense summary', () => {
 
     render(() => <DashboardPage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Total del mes')).toBeTruthy()
-    })
+    await waitForSummary()
 
     expect(mocks.listExpenses).toHaveBeenCalled()
     expect(mocks.getExpenseSummary).toHaveBeenCalled()
@@ -292,9 +292,7 @@ describe('DashboardPage expense summary', () => {
 
     render(() => <DashboardPage />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Total del mes')).toBeTruthy()
-    })
+    await waitForSummary()
     expect(screen.getAllByText((text) => text.includes('S/')).length).toBeGreaterThan(0)
     expect(screen.getByRole('region', { name: 'Resumen del periodo' })).toBeTruthy()
     expect(screen.getByRole('progressbar', { name: 'Porcentaje de Alimentación' })).toBeTruthy()

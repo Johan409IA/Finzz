@@ -11,6 +11,7 @@ interface EChartsBaseProps {
   option: EChartsCoreOption
   label: string
   height?: number
+  fill?: boolean
 }
 
 function isCanvasSupported(): boolean {
@@ -69,7 +70,7 @@ export default function EChartsBase(props: EChartsBaseProps) {
       ref={container}
       role="img"
       aria-label={props.label}
-      style={{ width: '100%', height: `${props.height ?? 260}px` }}
+      style={{ width: '100%', height: props.fill ? '100%' : `${props.height ?? 260}px` }}
     >
       <Show when={unavailable()}>
         <p class="py-8 text-center text-sm text-finzz-text">Gráfico no disponible en este entorno.</p>

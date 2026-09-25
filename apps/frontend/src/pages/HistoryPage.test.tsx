@@ -68,7 +68,7 @@ describe('HistoryPage', () => {
 
     expect(screen.getByRole('heading', { name: 'Historial' })).toBeTruthy()
     expect(screen.getByText(/consulta, busca y administra/i)).toBeTruthy()
-    expect(screen.getByRole('button', { name: '+ Registrar gasto' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Registrar gasto' })).toBeTruthy()
     await waitFor(() => {
       expect(screen.getByText(/12 gastos registrados en total/)).toBeTruthy()
     })
@@ -215,7 +215,7 @@ describe('HistoryPage', () => {
       expect(screen.getByText('Mostrando 1–10 de 12 gastos')).toBeTruthy()
     })
 
-    fireEvent.click(screen.getByRole('button', { name: '+ Registrar gasto' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Registrar gasto' }))
 
     await waitFor(() => {
       expect(screen.getByRole('form', { name: 'Nuevo gasto' })).toBeTruthy()

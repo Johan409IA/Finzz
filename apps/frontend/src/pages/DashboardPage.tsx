@@ -1,22 +1,23 @@
 import { createResource, createSignal, Show } from 'solid-js'
 import { A } from '@solidjs/router'
+import ArrowRightIcon from 'lucide-solid/icons/arrow-right'
+import CalendarIcon from 'lucide-solid/icons/calendar'
+import PlusIcon from 'lucide-solid/icons/plus'
 import ExpenseForm from '../components/ExpenseForm'
 import ExpenseList from '../components/ExpenseList'
 import ExpenseSummary from '../components/ExpenseSummary'
 import {
   createExpense,
-  deleteExpense,
   getExpenseSummary,
   listCategories,
   listExpenses,
   listExpensesPage,
-  updateExpense,
-  type Expense,
   type ExpenseInput,
   type ExpensePeriod,
   type ExpensePeriodType,
 } from '../lib/expenses'
-import { currentIsoWeek, currentMonth, formatCurrency, isoWeekToMonday } from '../lib/format'
+import { currentIsoWeek, currentMonth, formatTodayLong, isoWeekToMonday } from '../lib/format'
+import { primaryButtonClass } from '../lib/ui'
 
 const RECENT_LIMIT = 5
 
@@ -34,11 +35,21 @@ export default function DashboardPage() {
   )
   const [categories] = createResource(listCategories)
   const [summary, { refetch: refetchSummary }] = createResource(selectedPeriod, getExpenseSummary)
-  const [editingExpense, setEditingExpense] = createSignal<Expense | null>(null)
+  const [modalOpen, setModalOpen] = createSignal(false)
   const [saving, setSaving] = createSignal(false)
-  const [deletingId, setDeletingId] = createSignal<string | null>(null)
   const [mutationError, setMutationError] = createSignal<string | null>(null)
   const [successMessage, setSuccessMessage] = createSignal<string | null>(null)
+
+  const hasMoreThanRecent = () => !recent.loading && !recent.error && (recent()?.total ?? 0) > RECENT_LIMIT
+
+  function openCreateModal() {
+    setMutationError(null)
+    setModalOpen(true)
+  }
+
+  function closeModal() {
+    setModalOpen(false)
+  }
 
   async function handleExpenseSubmit(input: ExpenseInput) {
     setSaving(true)
@@ -46,15 +57,9 @@ export default function DashboardPage() {
     setSuccessMessage(null)
 
     try {
-      const currentExpense = editingExpense()
-      if (currentExpense) {
-        await updateExpense(currentExpense.id, input)
-        setEditingExpense(null)
-        setSuccessMessage('Gasto actualizado correctamente.')
-      } else {
-        await createExpense(input)
-        setSuccessMessage('Gasto guardado correctamente.')
-      }
+      await createExpense(input)
+      setSuccessMessage('Gasto guardado correctamente.')
+      closeModal()
       await Promise.all([refetchExpenses(), refetchRecent(), refetchSummary()])
     } catch (error) {
       setMutationError(error instanceof Error ? error.message : 'No se pudo guardar el gasto.')
@@ -63,46 +68,45 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleDelete(expense: Expense) {
-    if (!window.confirm(`¿Eliminar el gasto de ${formatCurrency(expense.amount)}?`)) return
-
-    setDeletingId(expense.id)
-    setMutationError(null)
-    setSuccessMessage(null)
-    try {
-      await deleteExpense(expense.id)
-      if (editingExpense()?.id === expense.id) setEditingExpense(null)
-      await Promise.all([refetchExpenses(), refetchRecent(), refetchSummary()])
-      setSuccessMessage('Gasto eliminado correctamente.')
-    } catch (error) {
-      setMutationError(error instanceof Error ? error.message : 'No se pudo eliminar el gasto.')
-    } finally {
-      setDeletingId(null)
-    }
-  }
-
   return (
-    <div class="grid gap-6">
-      <section class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+      <div class="dashboard-page grid gap-6 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:gap-4">
+        <section class="flex flex-col gap-4 lg:ml-5 lg:shrink-0 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p class="m-0 text-xs font-bold uppercase tracking-[0.1em] text-finzz-accent">Resumen</p>
-          <h1 class="mb-2 mt-1.5 max-w-[38rem] text-3xl leading-none tracking-tight text-finzz-heading sm:text-5xl">
-            Controla tus gastos con claridad.
+          <h1 class="mb-1.5 mt-0 text-3xl font-bold leading-none tracking-tight text-finzz-heading sm:text-4xl">
+            Dashboard
           </h1>
-          <p class="max-w-[38rem]">Registra cada movimiento y mantén una visión sencilla de tus finanzas.</p>
+          <p class="m-0 text-finzz-text">Visualiza y controla tus gastos personales.</p>
         </div>
-        <div class="w-fit min-w-36 rounded-xl border border-finzz-border bg-finzz-surface p-4">
-          <span class="block text-xs">Gastos registrados</span>
-          <strong class="mt-1 block text-3xl text-finzz-heading">{summary()?.expenseCount ?? 0}</strong>
+          <div class="flex flex-wrap items-center gap-3 lg:min-w-[420px] lg:justify-between xl:min-w-[560px]">
+          <span class="inline-flex items-center gap-2 text-sm text-finzz-text">
+            <CalendarIcon size={16} strokeWidth={2} class="text-finzz-accent" aria-hidden="true" />
+            <span class="capitalize">{formatTodayLong()}</span>
+          </span>
+          <button type="button" onClick={openCreateModal} class={primaryButtonClass}>
+            <PlusIcon size={16} strokeWidth={2.4} aria-hidden="true" />
+            Registrar gasto
+          </button>
         </div>
       </section>
 
       <Show when={successMessage()}>
-        {(message) => <p class="mt-4 text-sm text-finzz-success" role="status">{message()}</p>}
+        {(message) => (
+          <p
+            class="m-0 rounded-xl border border-finzz-accent-border/60 bg-finzz-accent-bg px-4 py-3 text-sm text-finzz-success lg:shrink-0"
+            role="status"
+          >
+            {message()}
+          </p>
+        )}
       </Show>
 
       <Show when={categories.error}>
-        <p class="mt-4 text-sm text-finzz-danger" role="alert">No se pudieron cargar las categorías.</p>
+        <p
+          class="m-0 rounded-xl border border-finzz-danger-border bg-finzz-danger-bg px-4 py-3 text-sm text-finzz-danger lg:shrink-0"
+          role="alert"
+        >
+          No se pudieron cargar las categorías.
+        </p>
       </Show>
 
       <ExpenseSummary
@@ -118,31 +122,49 @@ export default function DashboardPage() {
         expenses={expenses() ?? []}
       />
 
-      <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(16rem,0.8fr)_minmax(0,1.4fr)]">
-        <ExpenseForm
-          categories={categories() ?? []}
-          editingExpense={editingExpense()}
-          saving={saving()}
-          error={mutationError()}
-          onSubmit={handleExpenseSubmit}
-          onCancelEdit={() => setEditingExpense(null)}
+      <div class="lg:shrink-0">
+        <ExpenseList
+          expenses={recent()?.items ?? []}
+          loading={recent.loading}
+          error={recent.error ? 'No se pudieron cargar tus gastos.' : null}
+          title="Últimos 5 gastos"
+          subtitle="Tus gastos más recientes"
+          action={
+            <Show when={hasMoreThanRecent()}>
+              <A
+                href="/historial"
+                class="inline-flex items-center gap-1.5 text-sm font-semibold text-finzz-accent transition-colors hover:text-[#6cf6d3]"
+              >
+                Ver historial
+                <ArrowRightIcon size={16} strokeWidth={2.2} aria-hidden="true" />
+              </A>
+            </Show>
+          }
         />
-        <div class="grid gap-3">
-          <ExpenseList
-            expenses={recent()?.items ?? []}
-            loading={recent.loading}
-            error={recent.error ? 'No se pudieron cargar tus gastos.' : null}
-            onEdit={setEditingExpense}
-            onDelete={handleDelete}
-            deletingId={deletingId()}
-          />
-          <Show when={!recent.loading && !recent.error && (recent()?.total ?? 0) > RECENT_LIMIT}>
-            <A href="/historial" class="justify-self-end text-sm font-semibold text-finzz-accent hover:underline">
-              Ver historial →
-            </A>
-          </Show>
-        </div>
       </div>
+
+      <Show when={modalOpen()}>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Registrar gasto"
+          class="fixed inset-0 z-40 grid place-items-center overflow-y-auto bg-[#02101f]/80 p-4 backdrop-blur-sm"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) closeModal()
+          }}
+        >
+          <div class="w-full max-w-lg">
+            <ExpenseForm
+              categories={categories() ?? []}
+              editingExpense={null}
+              saving={saving()}
+              error={mutationError()}
+              onSubmit={handleExpenseSubmit}
+              onCancelEdit={closeModal}
+            />
+          </div>
+        </div>
+      </Show>
     </div>
   )
 }

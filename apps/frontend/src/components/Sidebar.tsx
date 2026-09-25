@@ -1,15 +1,33 @@
 import { A, useLocation, useNavigate } from '@solidjs/router'
 import { For, Show } from 'solid-js'
+import LayoutDashboardIcon from 'lucide-solid/icons/layout-dashboard'
+import ListIcon from 'lucide-solid/icons/list'
+import LogOutIcon from 'lucide-solid/icons/log-out'
 import { getInitials } from '../lib/history'
+import { ghostButtonClass } from '../lib/ui'
 import { useAuth } from '../lib/auth'
 
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Dashboard', icon: '▦' },
-  { href: '/historial', label: 'Historial', icon: '🕘' },
+  {
+    href: '/dashboard',
+    label: 'Dashboard',
+    icon: (iconClass: string) => (
+      <LayoutDashboardIcon size={18} strokeWidth={2} class={iconClass} aria-hidden="true" />
+    ),
+  },
+  {
+    href: '/historial',
+    label: 'Historial',
+    icon: (iconClass: string) => <ListIcon size={18} strokeWidth={2} class={iconClass} aria-hidden="true" />,
+  },
 ]
 
-const activeLinkClass = 'bg-emerald-500/15 font-semibold text-emerald-700'
-const inactiveLinkClass = 'text-finzz-text hover:bg-finzz-accent-bg hover:text-finzz-heading'
+const activeLinkClass = 'border border-finzz-border/70 bg-finzz-surface-2 text-finzz-heading'
+const inactiveLinkClass =
+  'border border-transparent text-finzz-text hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
+
+const activeIconClass = 'text-finzz-accent'
+const inactiveIconClass = 'text-finzz-muted'
 
 export default function Sidebar() {
   const location = useLocation()
@@ -26,19 +44,23 @@ export default function Sidebar() {
 
   return (
     <>
-      <header class="fixed inset-x-0 top-0 z-20 border-b border-finzz-border bg-finzz-surface lg:hidden">
-        <div class="flex items-center gap-2 px-4 py-3">
-          <img src="/apple-touch-icon.png" alt="Logotipo de Finzz" class="h-8 w-8 rounded-lg object-contain" />
-          <span class="text-lg font-bold tracking-tight text-finzz-heading">Finzz</span>
-          <nav aria-label="Principal" class="ml-2 flex flex-1 items-center gap-1">
+      <header class="fixed inset-x-0 top-0 z-30 border-b border-finzz-border/80 bg-finzz-bg/95 backdrop-blur lg:hidden">
+        <div class="flex items-center gap-3 px-4 py-3">
+          <img src="/logo.png" alt="Finzz" class="h-10 w-auto object-contain" />
+          <nav aria-label="Principal" class="ml-auto flex items-center gap-1">
             <For each={NAV_ITEMS}>
               {(item) => (
                 <A
                   href={item.href}
+                  aria-label={item.label}
                   aria-current={isActive(item.href) ? 'page' : undefined}
-                  class={`rounded-md px-3 py-2 text-sm transition-colors ${isActive(item.href) ? activeLinkClass : inactiveLinkClass}`}
+                  class={`grid h-10 w-10 place-items-center rounded-xl transition-colors ${
+                    isActive(item.href)
+                      ? 'border border-finzz-border/70 bg-finzz-surface-2 text-finzz-accent'
+                      : 'border border-transparent text-finzz-muted hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
+                  }`}
                 >
-                  {item.label}
+                  {item.icon(isActive(item.href) ? activeIconClass : inactiveIconClass)}
                 </A>
               )}
             </For>
@@ -46,59 +68,62 @@ export default function Sidebar() {
           <button
             type="button"
             onClick={handleSignOut}
-            class="rounded-md border border-finzz-border bg-transparent px-2.5 py-2 text-xs text-finzz-heading"
+            class="rounded-xl border border-finzz-border-strong/80 px-3 py-2 text-xs font-medium text-finzz-heading"
           >
             Salir
           </button>
         </div>
       </header>
 
-      <aside class="sticky top-0 hidden h-svh w-60 shrink-0 flex-col border-r border-finzz-border bg-finzz-surface lg:flex">
-        <div class="flex items-center gap-3 px-5 pb-6 pt-7">
-          <img src="/apple-touch-icon.png" alt="Logotipo de Finzz" class="h-10 w-10 rounded-xl object-contain" />
-          <div>
-            <p class="m-0 text-xs font-bold uppercase tracking-[0.1em] text-finzz-accent">Finanzas personales</p>
-            <p class="m-0 text-xl font-bold tracking-tight text-finzz-heading">Finzz</p>
+        <aside class="hidden lg:sticky lg:top-0 lg:flex lg:h-full lg:w-[15.5rem] lg:shrink-0 lg:p-2">
+        <div class="flex min-h-0 flex-1 flex-col rounded-2xl border border-finzz-border/80 bg-gradient-to-b from-finzz-surface-2/70 to-finzz-bg-soft/40 p-3">
+          <div class="flex items-center justify-center px-2 pb-4 pt-2">
+            <img src="/logo.png" alt="Finzz" class="h-14 w-auto object-contain" />
           </div>
-        </div>
-        <nav aria-label="Principal" class="grid flex-1 content-start gap-1 px-3">
-          <For each={NAV_ITEMS}>
-            {(item) => (
-              <A
-                href={item.href}
-                aria-current={isActive(item.href) ? 'page' : undefined}
-                class={`flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm transition-colors ${isActive(item.href) ? activeLinkClass : inactiveLinkClass}`}
+
+          <nav aria-label="Principal" class="grid content-start gap-1.5">
+            <For each={NAV_ITEMS}>
+              {(item) => (
+                <A
+                  href={item.href}
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                  class={`relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
+                    isActive(item.href) ? activeLinkClass : inactiveLinkClass
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    class={`absolute inset-y-2 left-0 w-1 rounded-r-full bg-finzz-accent transition-opacity ${
+                      isActive(item.href) ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+                  {item.icon(isActive(item.href) ? activeIconClass : inactiveIconClass)}
+                  {item.label}
+                </A>
+              )}
+            </For>
+          </nav>
+
+          <div class="mt-auto grid gap-3 border-t border-finzz-border/70 pt-4">
+            <div class="flex items-center gap-3 px-1">
+              <span
+                aria-hidden="true"
+                class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-finzz-accent-border/60 bg-finzz-accent/15 text-sm font-bold text-finzz-accent"
               >
-                <span aria-hidden="true" class="grid h-7 w-7 place-items-center rounded-md bg-finzz-accent-bg text-base">
-                  {item.icon}
-                </span>
-                {item.label}
-              </A>
-            )}
-          </For>
-        </nav>
-        <div class="border-t border-finzz-border p-4">
-          <div class="flex items-center gap-3">
-            <span
-              aria-hidden="true"
-              class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-sm font-bold text-emerald-700"
-            >
-              {getInitials(user()?.profile?.name, user()?.email)}
-            </span>
-            <span class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold text-finzz-heading">
-              {displayName()}
-            </span>
+                {getInitials(user()?.profile?.name, user()?.email)}
+              </span>
+              <span class="grid min-w-0">
+                <span class="truncate text-sm font-semibold text-finzz-heading">{displayName()}</span>
+                <Show when={user()?.email && user()?.profile?.name}>
+                  <span class="truncate text-xs text-finzz-text">{user()?.email}</span>
+                </Show>
+              </span>
+            </div>
+            <button type="button" onClick={handleSignOut} class={`${ghostButtonClass} w-full`}>
+              <LogOutIcon size={16} strokeWidth={2} aria-hidden="true" />
+              Cerrar sesión
+            </button>
           </div>
-          <Show when={user()?.email && user()?.profile?.name}>
-            <p class="m-0 mt-1 overflow-hidden text-ellipsis whitespace-nowrap pl-[3.25rem] text-xs">{user()?.email}</p>
-          </Show>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            class="mt-3 w-full rounded-md border border-finzz-border bg-transparent px-3 py-2 text-sm text-finzz-heading transition-colors hover:bg-finzz-accent-bg"
-          >
-            Cerrar sesión
-          </button>
         </div>
       </aside>
     </>

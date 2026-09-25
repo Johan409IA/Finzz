@@ -9,35 +9,57 @@ export interface DonutCategory {
   name: string
   amount: number
   percentage: number
+  slug?: string
 }
 
 export const WEEKDAY_SHORT_LABELS = ['LU', 'MA', 'MI', 'JU', 'VI', 'SA', 'DO'] as const
 
-export const FINZZ_CHART_PRIMARY = '#10b981'
+export const FINZZ_CHART_PRIMARY = '#1ce3b7'
 
-const DONUT_PALETTE = [
-  '#10b981',
-  '#0d9488',
+const CATEGORY_COLORS: Record<string, string> = {
+  alimentacion: '#34d399',
+  transporte: '#38bdf8',
+  vivienda: '#fbbf24',
+  servicios: '#a78bfa',
+  salud: '#fb7185',
+  ocio: '#e879f9',
+  educacion: '#818cf8',
+}
+
+export const CATEGORY_CHART_COLORS = [
   '#34d399',
-  '#14b8a6',
-  '#059669',
-  '#6ee7b7',
-  '#047857',
-  '#a7f3d0',
+  '#38bdf8',
+  '#fbbf24',
+  '#a78bfa',
+  '#fb7185',
+  '#e879f9',
+  '#818cf8',
+  '#94a3b8',
 ]
 
+export function categoryChartColor(slug: string | undefined, fallbackIndex = 0): string {
+  if (slug) {
+    const known = CATEGORY_COLORS[slug]
+    if (known) return known
+  }
+  return CATEGORY_CHART_COLORS[fallbackIndex % CATEGORY_CHART_COLORS.length] ?? '#94a3b8'
+}
+
+const SURFACE = '#062b49'
+
 const TOOLTIP_STYLE = {
-  backgroundColor: '#08060d',
-  borderWidth: 0,
+  backgroundColor: '#041b31',
+  borderColor: '#17618b',
+  borderWidth: 1,
   padding: [8, 12] as unknown as number,
-  textStyle: { color: '#fffaf3', fontSize: 12 },
+  textStyle: { color: '#f4f7fb', fontSize: 12 },
 }
 
 const AXIS_STYLE = {
-  axisLine: { lineStyle: { color: 'rgba(8, 6, 13, 0.15)' } },
+  axisLine: { lineStyle: { color: 'rgba(145, 175, 208, 0.3)' } },
   axisTick: { show: false },
-  axisLabel: { color: '#6b6375', fontSize: 11 },
-  splitLine: { lineStyle: { color: 'rgba(8, 6, 13, 0.06)' } },
+  axisLabel: { color: '#91afd0', fontSize: 11 },
+  splitLine: { lineStyle: { color: 'rgba(145, 175, 208, 0.14)' } },
 }
 
 const BASE_ANIMATION = {
@@ -101,10 +123,14 @@ export function buildMonthlyLineOption(dailyTotals: DailyTotal[]) {
   return {
     backgroundColor: 'transparent',
     ...BASE_ANIMATION,
-    grid: { left: 8, right: 8, top: 24, bottom: 0, containLabel: true },
+    grid: { left: 8, right: 12, top: 28, bottom: 0, containLabel: true },
     tooltip: {
       ...TOOLTIP_STYLE,
       trigger: 'axis' as const,
+      axisPointer: {
+        type: 'line' as const,
+        lineStyle: { color: 'rgba(28, 227, 183, 0.55)', type: 'dashed' as const, width: 1 },
+      },
       formatter: (params: Array<{ axisValue: string; data: number }>) => {
         const point = params[0]
         if (!point) return ''
@@ -122,15 +148,21 @@ export function buildMonthlyLineOption(dailyTotals: DailyTotal[]) {
         formatter: (value: string) => value.slice(8, 10),
       },
     },
-    yAxis: { type: 'value' as const, ...AXIS_STYLE },
+    yAxis: {
+      type: 'value' as const,
+      ...AXIS_STYLE,
+      minInterval: 1,
+      splitNumber: 4,
+      axisLabel: { ...AXIS_STYLE.axisLabel, hideOverlap: true },
+    },
     series: [
       {
         type: 'line' as const,
         data: values,
         smooth: true,
-        symbolSize: 6,
+        symbolSize: 7,
         lineStyle: { width: 2.5, color: FINZZ_CHART_PRIMARY },
-        itemStyle: { color: FINZZ_CHART_PRIMARY, borderWidth: 2, borderColor: '#fff' },
+        itemStyle: { color: FINZZ_CHART_PRIMARY, borderWidth: 2, borderColor: SURFACE },
         areaStyle: {
           color: {
             type: 'linear' as const,
@@ -139,8 +171,8 @@ export function buildMonthlyLineOption(dailyTotals: DailyTotal[]) {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(16, 185, 129, 0.35)' },
-              { offset: 1, color: 'rgba(16, 185, 129, 0.04)' },
+              { offset: 0, color: 'rgba(28, 227, 183, 0.34)' },
+              { offset: 1, color: 'rgba(28, 227, 183, 0.02)' },
             ],
           },
         },
@@ -156,10 +188,11 @@ export function buildWeeklyBarOption(dailyTotals: DailyTotal[]) {
   return {
     backgroundColor: 'transparent',
     ...BASE_ANIMATION,
-    grid: { left: 8, right: 8, top: 24, bottom: 0, containLabel: true },
+    grid: { left: 8, right: 12, top: 36, bottom: 0, containLabel: true },
     tooltip: {
       ...TOOLTIP_STYLE,
       trigger: 'axis' as const,
+      axisPointer: { type: 'shadow' as const },
       formatter: (params: Array<{ dataIndex: number; data: number }>) => {
         const point = params[0]
         if (!point) return ''
@@ -175,13 +208,40 @@ export function buildWeeklyBarOption(dailyTotals: DailyTotal[]) {
       data: [...WEEKDAY_SHORT_LABELS],
       ...AXIS_STYLE,
     },
-    yAxis: { type: 'value' as const, ...AXIS_STYLE },
+    yAxis: {
+      type: 'value' as const,
+      ...AXIS_STYLE,
+      minInterval: 1,
+      splitNumber: 4,
+      axisLabel: { ...AXIS_STYLE.axisLabel, hideOverlap: true },
+    },
     series: [
       {
         type: 'bar' as const,
         data: values,
-        itemStyle: { color: FINZZ_CHART_PRIMARY, borderRadius: [6, 6, 0, 0] },
-        barWidth: '55%',
+        barWidth: '52%',
+        itemStyle: {
+          borderRadius: [8, 8, 0, 0],
+          color: {
+            type: 'linear' as const,
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: '#3cf0c4' },
+              { offset: 1, color: 'rgba(28, 227, 183, 0.22)' },
+            ],
+          },
+        },
+        label: {
+          show: true,
+          position: 'top' as const,
+          color: '#afc0d4',
+          fontSize: 10,
+          formatter: (params: { value: number }) =>
+            Number(params.value) > 0 ? formatCurrency(Number(params.value)) : '',
+        },
         emphasis: { focus: 'series' as const },
       },
     ],
@@ -192,34 +252,30 @@ export function buildDonutOption(categories: DonutCategory[], total: number) {
   return {
     backgroundColor: 'transparent',
     ...BASE_ANIMATION,
-    color: DONUT_PALETTE,
-    title: {
-      text: formatCurrency(total),
-      subtext: 'Total del período',
-      left: 'center',
-      top: '38%',
-      textStyle: { fontSize: 20, fontWeight: 700, color: '#08060d' },
-      subtextStyle: { fontSize: 11, color: '#6b6375' },
-      itemGap: 4,
-    },
+    color: CATEGORY_CHART_COLORS,
     tooltip: {
       ...TOOLTIP_STYLE,
       trigger: 'item' as const,
+      confine: true,
       formatter: (params: { name: string; value: number; percent?: number }) =>
         `${params.name}\n${formatCurrency(Number(params.value))} · ${Number(params.percent ?? 0).toFixed(2)}%`,
     },
     series: [
       {
         type: 'pie' as const,
-        radius: ['58%', '80%'],
+          radius: ['64%', '80%'],
         center: ['50%', '50%'],
         avoidLabelOverlap: true,
         padAngle: 2,
-        itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+        itemStyle: { borderRadius: 6, borderColor: SURFACE, borderWidth: 2 },
         label: { show: false },
         labelLine: { show: false },
         emphasis: { scale: true, scaleSize: 4 },
-        data: categories.map((category) => ({ name: category.name, value: category.amount })),
+        data: categories.map((category, index) => ({
+          name: category.name,
+          value: category.amount,
+          itemStyle: { color: categoryChartColor(category.slug, index) },
+        })),
       },
     ],
   }

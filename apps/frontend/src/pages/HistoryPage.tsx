@@ -1,7 +1,25 @@
 import { createResource, createSignal, For, onCleanup, Show } from 'solid-js'
+import CalendarIcon from 'lucide-solid/icons/calendar'
+import ChevronLeftIcon from 'lucide-solid/icons/chevron-left'
+import ChevronRightIcon from 'lucide-solid/icons/chevron-right'
+import PencilIcon from 'lucide-solid/icons/pencil'
+import PlusIcon from 'lucide-solid/icons/plus'
+import ReceiptTextIcon from 'lucide-solid/icons/receipt-text'
+import SearchIcon from 'lucide-solid/icons/search'
+import TrashIcon from 'lucide-solid/icons/trash'
+import CategoryBadge, { categoryIcon } from '../components/CategoryBadge'
 import ExpenseForm from '../components/ExpenseForm'
-import { categoryBadgeClass, formatShowingRange, getVisiblePageNumbers } from '../lib/history'
-import { formatCurrency, formatDate } from '../lib/format'
+import { categoryChartColor } from '../lib/charts'
+import { formatShowingRange, getVisiblePageNumbers } from '../lib/history'
+import { formatCurrency, formatDate, formatTodayLong } from '../lib/format'
+import {
+  cardClass,
+  dangerButtonClass,
+  fieldClass,
+  ghostButtonClass,
+  primaryButtonClass,
+  tableHeadClass,
+} from '../lib/ui'
 import {
   createExpense,
   deleteExpense,
@@ -15,9 +33,7 @@ import {
 const PAGE_SIZE = 10
 const SEARCH_DEBOUNCE_MS = 300
 
-export function todayLong(): string {
-  return new Intl.DateTimeFormat('es-PE', { dateStyle: 'long' }).format(new Date())
-}
+const rowActionClass = 'px-3 py-2 text-xs'
 
 export default function HistoryPage() {
   const [searchInput, setSearchInput] = createSignal('')
@@ -113,66 +129,99 @@ export default function HistoryPage() {
   }
 
   return (
-    <div class="grid gap-6">
-      <section class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="grid gap-6 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:gap-4">
+      <section class="flex flex-col gap-4 border-b border-finzz-border/60 pb-5 lg:shrink-0 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 class="mb-1 mt-0 text-3xl tracking-tight text-finzz-heading">Historial</h1>
-          <p class="m-0">Consulta, busca y administra todos tus gastos registrados.</p>
+          <h1 class="mb-1.5 mt-0 text-3xl font-bold leading-none tracking-tight text-finzz-heading sm:text-4xl">
+            Historial
+          </h1>
+          <p class="m-0 text-finzz-text">Consulta, busca y administra todos tus gastos registrados.</p>
         </div>
-        <div class="flex items-center gap-3">
-          <span class="text-sm capitalize">{todayLong()}</span>
-          <button
-            type="button"
-            onClick={openCreateModal}
-            class="rounded-md border border-transparent bg-finzz-accent px-3 py-2 text-sm text-white transition-colors hover:bg-finzz-accent-strong"
-          >
-            + Registrar gasto
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="inline-flex items-center gap-2 text-sm text-finzz-text">
+            <CalendarIcon size={16} strokeWidth={2} class="text-finzz-accent" aria-hidden="true" />
+            <span class="capitalize">{formatTodayLong()}</span>
+          </span>
+          <button type="button" onClick={openCreateModal} class={primaryButtonClass}>
+            <PlusIcon size={16} strokeWidth={2.4} aria-hidden="true" />
+            Registrar gasto
           </button>
         </div>
       </section>
 
       <Show when={successMessage()}>
-        {(message) => <p class="text-sm text-finzz-success" role="status">{message()}</p>}
+        {(message) => (
+          <p
+            class="m-0 rounded-xl border border-finzz-accent-border/60 bg-finzz-accent-bg px-4 py-3 text-sm text-finzz-success lg:shrink-0"
+            role="status"
+          >
+            {message()}
+          </p>
+        )}
       </Show>
       <Show when={mutationError()}>
-        {(message) => <p class="text-sm text-finzz-danger" role="alert">{message()}</p>}
+        {(message) => (
+          <p
+            class="m-0 rounded-xl border border-finzz-danger-border bg-finzz-danger-bg px-4 py-3 text-sm text-finzz-danger lg:shrink-0"
+            role="alert"
+          >
+            {message()}
+          </p>
+        )}
       </Show>
 
-      <section aria-label="Buscar y filtrar gastos" class="grid gap-3">
-        <input
-          type="search"
-          aria-label="Buscar por nombre del gasto"
-          placeholder="Buscar por nombre del gasto..."
-          value={searchInput()}
-          onInput={(event) => handleSearchInput(event.currentTarget.value)}
-          class="w-full box-border rounded-md border border-finzz-border bg-finzz-surface px-3 py-2.5 text-finzz-heading"
-        />
-        <p class="m-0 text-sm" role="status">
-          {total()} {total() === 1 ? 'gasto registrado en total' : 'gastos registrados en total'}
-          <Show when={debouncedSearch()}>
-            {(term) => (
-              <span>
-                {' '}· {(history()?.total ?? 0) === 1 ? '1 coincide' : `${history()?.total ?? 0} coinciden`} con «{term()}»
-              </span>
-            )}
-          </Show>
-        </p>
+      <section
+        aria-label="Buscar y filtrar gastos"
+        class={`${cardClass} flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-4 lg:shrink-0`}
+      >
+        <span class="relative flex min-w-0 flex-1 items-center">
+          <SearchIcon
+            size={18}
+            strokeWidth={2}
+            class="pointer-events-none absolute left-3.5 text-finzz-muted"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            aria-label="Buscar por nombre del gasto"
+            placeholder="Buscar por nombre del gasto..."
+            value={searchInput()}
+            onInput={(event) => handleSearchInput(event.currentTarget.value)}
+            class={`${fieldClass} pl-11`}
+          />
+        </span>
+        <div class="flex items-center gap-3 sm:pr-2">
+          <span
+            aria-hidden="true"
+            class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-finzz-info/15 text-finzz-info"
+          >
+            <ReceiptTextIcon size={18} strokeWidth={2} />
+          </span>
+          <p class="m-0 text-sm text-finzz-text" role="status">
+            {total()} {total() === 1 ? 'gasto registrado en total' : 'gastos registrados en total'}
+            <Show when={debouncedSearch()}>
+              {(term) => (
+                <span>
+                  {' '}· {(history()?.total ?? 0) === 1 ? '1 coincide' : `${history()?.total ?? 0} coinciden`} con «{term()}»
+                </span>
+              )}
+            </Show>
+          </p>
+        </div>
       </section>
 
       <Show when={history.loading && !history()}>
-        <div class="grid gap-3" aria-busy="true" aria-label="Cargando gastos">
-          <For each={[1, 2, 3, 4, 5]}>{() => <div class="h-14 animate-pulse rounded-md bg-finzz-code" />}</For>
+        <div class="grid gap-3 lg:shrink-0" aria-busy="true" aria-label="Cargando gastos">
+          <For each={[1, 2, 3, 4, 5, 6]}>
+            {() => <div class="h-14 animate-pulse rounded-xl bg-finzz-code/70" />}
+          </For>
         </div>
       </Show>
 
       <Show when={history.error}>
-        <div class="rounded-xl border border-finzz-border bg-finzz-surface p-5 text-left" role="alert">
+        <div class={`${cardClass} p-5 text-left lg:shrink-0`} role="alert">
           <p class="mt-0 text-sm text-finzz-danger">No se pudieron cargar tus gastos.</p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            class="rounded-md border border-finzz-border bg-transparent px-3 py-2 text-sm text-finzz-heading transition-colors hover:bg-finzz-accent-bg"
-          >
+          <button type="button" onClick={() => refetch()} class={ghostButtonClass}>
             Reintentar
           </button>
         </div>
@@ -184,48 +233,49 @@ export default function HistoryPage() {
             <Show
               when={data().total > 0}
               fallback={
-                <div class="rounded-xl border border-finzz-border bg-finzz-surface p-5 text-center" role="status">
+                <div class={`${cardClass} p-10 text-center`} role="status">
                   <Show
                     when={debouncedSearch()}
-                    fallback={<p class="m-0">No tienes gastos registrados.</p>}
+                    fallback={<p class="m-0 text-finzz-text">No tienes gastos registrados.</p>}
                   >
-                    <p class="m-0">No se encontraron gastos con ese nombre.</p>
+                    <p class="m-0 text-finzz-text">No se encontraron gastos con ese nombre.</p>
                   </Show>
                 </div>
               }
             >
-              <div class="overflow-x-auto rounded-xl border border-finzz-border bg-finzz-surface">
-                <table class="w-full min-w-[640px] border-collapse text-left text-sm">
+                <div class={`${cardClass} history-expenses-scrollbar overflow-auto lg:min-h-0 lg:flex-1`}>
+                <table class="w-full min-w-[720px] border-collapse text-left text-sm">
                   <thead>
-                    <tr class="border-b border-finzz-border text-xs uppercase tracking-wide">
-                      <th scope="col" class="px-4 py-3 font-bold text-finzz-heading">Descripción</th>
-                      <th scope="col" class="px-4 py-3 font-bold text-finzz-heading">Categoría</th>
-                      <th scope="col" class="px-4 py-3 font-bold text-finzz-heading">Fecha</th>
-                      <th scope="col" class="px-4 py-3 text-right font-bold text-finzz-heading">Importe</th>
-                      <th scope="col" class="px-4 py-3 text-right font-bold text-finzz-heading">Acciones</th>
+                    <tr class="border-b border-finzz-border/80">
+                      <th scope="col" class={`px-4 py-3 ${tableHeadClass}`}>Descripción</th>
+                      <th scope="col" class={`px-4 py-3 ${tableHeadClass}`}>Categoría</th>
+                      <th scope="col" class={`px-4 py-3 ${tableHeadClass}`}>Fecha</th>
+                      <th scope="col" class={`px-4 py-3 text-right ${tableHeadClass}`}>Importe</th>
+                      <th scope="col" class={`px-4 py-3 text-right ${tableHeadClass}`}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     <For each={data().items}>
                       {(expense) => (
-                        <tr class="border-b border-finzz-border last:border-b-0">
+                        <tr class="border-b border-finzz-border/50 last:border-b-0">
                           <td class="px-4 py-3">
                             <div class="flex items-center gap-3">
                               <span
                                 aria-hidden="true"
-                                class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-finzz-accent-bg font-bold text-finzz-accent"
+                                class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-finzz-border/70 bg-finzz-code/70"
+                                style={{ color: categoryChartColor(expense.category.slug) }}
                               >
-                                {expense.category.name.slice(0, 1)}
+                                {categoryIcon(expense.category.slug, 16)}
                               </span>
                               <span class="min-w-0">
-                                <strong class="block overflow-hidden text-ellipsis whitespace-nowrap text-finzz-heading">
+                                <strong class="block truncate font-semibold text-finzz-heading">
                                   {expense.description || expense.category.name}
                                 </strong>
                                 <Show
                                   when={expense.description}
-                                  fallback={<span class="block text-xs">Sin descripción</span>}
+                                  fallback={<span class="block text-xs text-finzz-text">Sin descripción</span>}
                                 >
-                                  <span class="block overflow-hidden text-ellipsis whitespace-nowrap text-xs">
+                                  <span class="block truncate text-xs text-finzz-text">
                                     {expense.category.name}
                                   </span>
                                 </Show>
@@ -233,28 +283,34 @@ export default function HistoryPage() {
                             </div>
                           </td>
                           <td class="px-4 py-3">
-                            <span class={categoryBadgeClass(expense.category.slug)}>{expense.category.name}</span>
+                            <CategoryBadge slug={expense.category.slug} name={expense.category.name} />
                           </td>
-                          <td class="whitespace-nowrap px-4 py-3">{formatDate(expense.expenseDate)}</td>
+                          <td class="whitespace-nowrap px-4 py-3 text-finzz-text">{formatDate(expense.expenseDate)}</td>
                           <td class="whitespace-nowrap px-4 py-3 text-right">
-                            <strong class="text-finzz-heading">{formatCurrency(expense.amount)}</strong>
+                            <strong class="font-semibold tabular-nums text-finzz-heading">
+                              {formatCurrency(expense.amount)}
+                            </strong>
                           </td>
                           <td class="whitespace-nowrap px-4 py-3 text-right">
-                            <button
-                              type="button"
-                              onClick={() => openEditModal(expense)}
-                              class="mr-1 rounded-md border border-finzz-border bg-transparent px-3 py-2 text-sm text-finzz-heading transition-colors hover:bg-finzz-accent-bg"
-                            >
-                              Editar
-                            </button>
-                            <button
-                              type="button"
-                              disabled={deletingId() === expense.id}
-                              onClick={() => handleDelete(expense)}
-                              class="rounded-md border border-transparent bg-transparent px-3 py-2 text-sm text-finzz-danger transition-colors hover:border-finzz-danger-border hover:bg-finzz-danger-bg disabled:cursor-not-allowed disabled:opacity-55"
-                            >
-                              {deletingId() === expense.id ? 'Eliminando…' : 'Eliminar'}
-                            </button>
+                            <div class="inline-flex justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => openEditModal(expense)}
+                                class={`${ghostButtonClass} ${rowActionClass}`}
+                              >
+                                <PencilIcon size={14} strokeWidth={2} aria-hidden="true" />
+                                Editar
+                              </button>
+                              <button
+                                type="button"
+                                disabled={deletingId() === expense.id}
+                                onClick={() => handleDelete(expense)}
+                                class={`${dangerButtonClass} ${rowActionClass}`}
+                              >
+                                <TrashIcon size={14} strokeWidth={2} aria-hidden="true" />
+                                {deletingId() === expense.id ? 'Eliminando…' : 'Eliminar'}
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       )}
@@ -263,20 +319,24 @@ export default function HistoryPage() {
                 </table>
               </div>
 
-              <nav aria-label="Paginación de gastos" class="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row">
-                <p class="m-0 text-sm" role="status">
+              <nav
+                aria-label="Paginación de gastos"
+                class="flex flex-col items-center justify-between gap-3 lg:shrink-0 sm:flex-row"
+              >
+                <p class="m-0 text-sm text-finzz-text" role="status">
                   Mostrando {range().from}–{range().to} de {total()} gastos
                   <Show when={history.loading}>
                     <span> · Cargando…</span>
                   </Show>
                 </p>
-                <div class="flex items-center gap-1">
+                <div class="flex items-center gap-1.5">
                   <button
                     type="button"
                     disabled={page() <= 1}
                     onClick={() => setPage(page() - 1)}
-                    class="rounded-md border border-finzz-border bg-transparent px-3 py-2 text-sm text-finzz-heading transition-colors hover:bg-finzz-accent-bg disabled:cursor-not-allowed disabled:opacity-55"
+                    class={`${ghostButtonClass} px-3 py-2 text-xs`}
                   >
+                    <ChevronLeftIcon size={14} strokeWidth={2.2} aria-hidden="true" />
                     Anterior
                   </button>
                   <For each={getVisiblePageNumbers(page(), totalPages())}>
@@ -286,10 +346,10 @@ export default function HistoryPage() {
                         aria-label={`Ir a la página ${pageNumber}`}
                         aria-current={pageNumber === page() ? 'page' : undefined}
                         onClick={() => setPage(pageNumber)}
-                        class={`rounded-md px-3 py-2 text-sm transition-colors ${
+                        class={`grid h-9 w-9 place-items-center rounded-xl border text-sm font-semibold transition-colors ${
                           pageNumber === page()
-                            ? 'bg-emerald-500 font-bold text-white'
-                            : 'border border-finzz-border bg-transparent text-finzz-heading hover:bg-finzz-accent-bg'
+                            ? 'border-transparent bg-finzz-accent font-bold text-[#03263c]'
+                            : 'border-finzz-border-strong/60 text-finzz-text hover:border-finzz-accent/60 hover:bg-finzz-accent-bg hover:text-finzz-heading'
                         }`}
                       >
                         {pageNumber}
@@ -300,9 +360,10 @@ export default function HistoryPage() {
                     type="button"
                     disabled={page() >= totalPages()}
                     onClick={() => setPage(page() + 1)}
-                    class="rounded-md border border-finzz-border bg-transparent px-3 py-2 text-sm text-finzz-heading transition-colors hover:bg-finzz-accent-bg disabled:cursor-not-allowed disabled:opacity-55"
+                    class={`${ghostButtonClass} px-3 py-2 text-xs`}
                   >
                     Siguiente
+                    <ChevronRightIcon size={14} strokeWidth={2.2} aria-hidden="true" />
                   </button>
                 </div>
               </nav>
@@ -316,7 +377,7 @@ export default function HistoryPage() {
           role="dialog"
           aria-modal="true"
           aria-label={editingExpense() ? 'Editar gasto' : 'Registrar gasto'}
-          class="fixed inset-0 z-30 grid place-items-center overflow-y-auto bg-black/40 p-4"
+          class="fixed inset-0 z-40 grid place-items-center overflow-y-auto bg-[#02101f]/80 p-4 backdrop-blur-sm"
           onClick={(event) => {
             if (event.target === event.currentTarget) closeModal()
           }}
