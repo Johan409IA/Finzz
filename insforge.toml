@@ -1,5 +1,5 @@
 [auth]
-allowed_redirect_urls = ["http://localhost:5173/login", "http://localhost:5175/login"]
+allowed_redirect_urls = ["http://localhost:5173/login", "http://localhost:5175/login", "https://finzz-frontend.vercel.app/login"]
 require_email_verification = true
 verify_email_method = "link"
 reset_password_method = "link"
