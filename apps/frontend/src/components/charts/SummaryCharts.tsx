@@ -45,7 +45,7 @@ export function CategoryDonutChart(props: DonutProps) {
       style={{ height: props.fill ? '100%' : '260px' }}
     >
       <EChartsBase
-        option={buildDonutOption(props.categories, props.total) as never}
+        option={buildDonutOption(props.categories) as never}
         label={props.label}
         height={260}
         fill

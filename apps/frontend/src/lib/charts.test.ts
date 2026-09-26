@@ -121,25 +121,22 @@ describe('buildWeeklyBarOption', () => {
 
 describe('buildDonutOption', () => {
   test('total en el centro y un segmento por categoría', () => {
-    const option = buildDonutOption(
-      [
-        { name: 'Alimentación', amount: 60, percentage: 60 },
-        { name: 'Transporte', amount: 30, percentage: 30 },
-        { name: 'Ocio', amount: 10, percentage: 10 },
-      ],
-      100,
-    )
+    const option = buildDonutOption([
+      { name: 'Alimentación', amount: 60, percentage: 60 },
+      { name: 'Transporte', amount: 30, percentage: 30 },
+      { name: 'Ocio', amount: 10, percentage: 10 },
+    ])
     const series = (
       option.series as Array<{ type: string; data: Array<{ name: string; value: number }>; radius: string[] }>
     )[0]
     expect(series.type).toBe('pie')
-    expect(series.radius).toEqual(['58%', '80%'])
+    expect(series.radius).toEqual(['64%', '80%'])
     expect(series.data.map((item) => item.name)).toEqual(['Alimentación', 'Transporte', 'Ocio'])
     expect(JSON.stringify(option)).toContain('S/')
   })
 
   test('categorías vacías devuelven serie vacía', () => {
-    const option = buildDonutOption([], 0)
+    const option = buildDonutOption([])
     const series = (option.series as Array<{ data: unknown[] }>)[0]
     expect(series.data).toEqual([])
   })

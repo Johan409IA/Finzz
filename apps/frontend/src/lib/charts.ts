@@ -248,7 +248,7 @@ export function buildWeeklyBarOption(dailyTotals: DailyTotal[]) {
   }
 }
 
-export function buildDonutOption(categories: DonutCategory[], total: number) {
+export function buildDonutOption(categories: DonutCategory[]) {
   return {
     backgroundColor: 'transparent',
     ...BASE_ANIMATION,
