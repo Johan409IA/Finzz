@@ -29,8 +29,8 @@ describe('ExpenseList', () => {
   test('muestra el gasto en modo lectura, sin acciones de edición ni eliminación', () => {
     render(() => <ExpenseList expenses={[expense]} loading={false} error={null} />)
 
-    expect(screen.getByText('Café')).toBeTruthy()
-    expect(screen.getByText((text) => text.includes('S/ 12.50'))).toBeTruthy()
+    expect(screen.getAllByText('Café')).toHaveLength(2)
+    expect(screen.getAllByText((text) => text.includes('S/ 12.50'))).toHaveLength(2)
     expect(screen.queryByRole('button', { name: 'Editar' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Eliminar' })).toBeNull()
   })

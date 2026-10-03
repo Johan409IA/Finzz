@@ -17,7 +17,7 @@ import {
   type ExpensePeriodType,
 } from '../lib/expenses'
 import { currentIsoWeek, currentMonth, formatTodayLong, isoWeekToMonday } from '../lib/format'
-import { primaryButtonClass } from '../lib/ui'
+import { pageHeaderClass, primaryButtonClass } from '../lib/ui'
 
 const RECENT_LIMIT = 5
 
@@ -69,20 +69,20 @@ export default function DashboardPage() {
   }
 
   return (
-      <div class="dashboard-page grid gap-6 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:gap-4">
-        <section class="flex flex-col gap-4 lg:ml-5 lg:shrink-0 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 class="mb-1.5 mt-0 text-3xl font-bold leading-none tracking-tight text-finzz-heading sm:text-4xl">
+      <div class="dashboard-page grid gap-4 lg:flex lg:h-full lg:min-h-0 lg:flex-col">
+       <section class={`${pageHeaderClass} gap-3 lg:border-b-0 lg:pb-0`}>
+         <div>
+           <h1 class="m-0 text-2xl font-bold leading-none tracking-tight text-finzz-heading sm:text-4xl">
             Dashboard
           </h1>
           <p class="m-0 text-finzz-text">Visualiza y controla tus gastos personales.</p>
         </div>
-          <div class="flex flex-wrap items-center gap-3 lg:min-w-[420px] lg:justify-between xl:min-w-[560px]">
+          <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end lg:min-w-[420px] lg:justify-between xl:min-w-[560px]">
           <span class="inline-flex items-center gap-2 text-sm text-finzz-text">
             <CalendarIcon size={16} strokeWidth={2} class="text-finzz-accent" aria-hidden="true" />
             <span class="capitalize">{formatTodayLong()}</span>
           </span>
-          <button type="button" onClick={openCreateModal} class={primaryButtonClass}>
+          <button type="button" onClick={openCreateModal} class={`${primaryButtonClass} w-full sm:w-auto`}>
             <PlusIcon size={16} strokeWidth={2.4} aria-hidden="true" />
             Registrar gasto
           </button>

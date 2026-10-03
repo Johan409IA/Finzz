@@ -6,6 +6,7 @@ import PencilIcon from 'lucide-solid/icons/pencil'
 import PlusIcon from 'lucide-solid/icons/plus'
 import ReceiptTextIcon from 'lucide-solid/icons/receipt-text'
 import SearchIcon from 'lucide-solid/icons/search'
+import LoaderCircleIcon from 'lucide-solid/icons/loader-circle'
 import TrashIcon from 'lucide-solid/icons/trash'
 import CategoryBadge, { categoryIcon } from '../components/CategoryBadge'
 import ExpenseForm from '../components/ExpenseForm'
@@ -17,6 +18,7 @@ import {
   dangerButtonClass,
   fieldClass,
   ghostButtonClass,
+  pageHeaderClass,
   primaryButtonClass,
   tableHeadClass,
 } from '../lib/ui'
@@ -33,7 +35,7 @@ import {
 const PAGE_SIZE = 10
 const SEARCH_DEBOUNCE_MS = 300
 
-const rowActionClass = 'px-3 py-2 text-xs'
+const rowActionClass = 'min-h-10 px-3 py-2 text-xs'
 
 export default function HistoryPage() {
   const [searchInput, setSearchInput] = createSignal('')
@@ -129,20 +131,20 @@ export default function HistoryPage() {
   }
 
   return (
-    <div class="grid gap-6 lg:flex lg:h-full lg:min-h-0 lg:flex-col lg:gap-4">
-      <section class="flex flex-col gap-4 border-b border-finzz-border/60 pb-5 lg:shrink-0 sm:flex-row sm:items-start sm:justify-between">
+    <div class="grid gap-4 lg:flex lg:h-full lg:min-h-0 lg:flex-col">
+       <section class={`${pageHeaderClass} gap-3`}>
         <div>
-          <h1 class="mb-1.5 mt-0 text-3xl font-bold leading-none tracking-tight text-finzz-heading sm:text-4xl">
+          <h1 class="mb-1.5 mt-0 text-2xl font-bold leading-none tracking-tight text-finzz-heading sm:text-4xl">
             Historial
           </h1>
           <p class="m-0 text-finzz-text">Consulta, busca y administra todos tus gastos registrados.</p>
         </div>
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
           <span class="inline-flex items-center gap-2 text-sm text-finzz-text">
             <CalendarIcon size={16} strokeWidth={2} class="text-finzz-accent" aria-hidden="true" />
             <span class="capitalize">{formatTodayLong()}</span>
           </span>
-          <button type="button" onClick={openCreateModal} class={primaryButtonClass}>
+          <button type="button" onClick={openCreateModal} class={`${primaryButtonClass} w-full sm:w-auto`}>
             <PlusIcon size={16} strokeWidth={2.4} aria-hidden="true" />
             Registrar gasto
           </button>
@@ -172,9 +174,9 @@ export default function HistoryPage() {
 
       <section
         aria-label="Buscar y filtrar gastos"
-        class={`${cardClass} flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-4 lg:shrink-0`}
+        class={`${cardClass} min-w-0 flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-4 lg:shrink-0`}
       >
-        <span class="relative flex min-w-0 flex-1 items-center">
+        <span class="relative flex min-w-0 flex-1 items-center rounded-xl focus-within:ring-2 focus-within:ring-finzz-accent/30">
           <SearchIcon
             size={18}
             strokeWidth={2}
@@ -197,7 +199,11 @@ export default function HistoryPage() {
           >
             <ReceiptTextIcon size={18} strokeWidth={2} />
           </span>
-          <p class="m-0 text-sm text-finzz-text" role="status">
+          <p class="m-0 text-sm text-finzz-text" role="status" aria-live="polite">
+            <Show when={history.loading}>
+              <LoaderCircleIcon size={14} class="mr-1 inline animate-spin align-[-2px] text-finzz-accent" aria-hidden="true" />
+              <span class="sr-only">Actualizando resultados. </span>
+            </Show>
             {total()} {total() === 1 ? 'gasto registrado en total' : 'gastos registrados en total'}
             <Show when={debouncedSearch()}>
               {(term) => (
@@ -243,7 +249,60 @@ export default function HistoryPage() {
                 </div>
               }
             >
-                <div class={`${cardClass} history-expenses-scrollbar overflow-auto lg:min-h-0 lg:flex-1`}>
+                <ul class="m-0 grid list-none gap-3 p-0 sm:hidden">
+                  <For each={data().items}>
+                    {(expense) => (
+                      <li class={`${cardClass} grid gap-3 p-3`}>
+                        <div class="flex min-w-0 items-center gap-3">
+                          <span
+                            aria-hidden="true"
+                            class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-finzz-border/70 bg-finzz-code/70"
+                            style={{ color: categoryChartColor(expense.category.slug) }}
+                          >
+                            {categoryIcon(expense.category.slug, 16)}
+                          </span>
+                          <span class="min-w-0 flex-1">
+                            <strong class="block break-words font-semibold text-finzz-heading">
+                              {expense.description || expense.category.name}
+                            </strong>
+                            <span class="block text-xs text-finzz-text">{expense.category.name}</span>
+                          </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 border-t border-finzz-border/50 pt-2 text-sm">
+                          <span class="grid gap-0.5">
+                            <span class={tableHeadClass}>Fecha</span>
+                            <span class="text-finzz-text">{formatDate(expense.expenseDate)}</span>
+                          </span>
+                          <span class="grid justify-items-end gap-0.5">
+                            <span class={tableHeadClass}>Importe</span>
+                            <strong class="tabular-nums text-finzz-heading">{formatCurrency(expense.amount)}</strong>
+                          </span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openEditModal(expense)}
+                            class={`${ghostButtonClass} ${rowActionClass} w-full`}
+                          >
+                            <PencilIcon size={14} strokeWidth={2} aria-hidden="true" />
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            disabled={deletingId() === expense.id}
+                            aria-busy={deletingId() === expense.id}
+                            onClick={() => handleDelete(expense)}
+                            class={`${dangerButtonClass} ${rowActionClass} w-full`}
+                          >
+                            <TrashIcon size={14} strokeWidth={2} aria-hidden="true" />
+                            {deletingId() === expense.id ? 'Eliminando…' : 'Eliminar'}
+                          </button>
+                        </div>
+                      </li>
+                    )}
+                  </For>
+                </ul>
+                <div class={`history-expenses-scrollbar hidden min-w-0 overflow-x-auto rounded-2xl border border-finzz-border/80 bg-finzz-surface/80 shadow-[0_10px_30px_rgba(0,0,0,0.16)] sm:block lg:min-h-0 lg:flex-1`}>
                 <table class="w-full min-w-[720px] border-collapse text-left text-sm">
                   <thead>
                     <tr class="border-b border-finzz-border/80">
@@ -304,6 +363,7 @@ export default function HistoryPage() {
                               <button
                                 type="button"
                                 disabled={deletingId() === expense.id}
+                                aria-busy={deletingId() === expense.id}
                                 onClick={() => handleDelete(expense)}
                                 class={`${dangerButtonClass} ${rowActionClass}`}
                               >
@@ -329,7 +389,7 @@ export default function HistoryPage() {
                     <span> · Cargando…</span>
                   </Show>
                 </p>
-                <div class="flex items-center gap-1.5">
+                <div class="flex max-w-full flex-wrap items-center justify-center gap-1.5">
                   <button
                     type="button"
                     disabled={page() <= 1}
@@ -346,7 +406,7 @@ export default function HistoryPage() {
                         aria-label={`Ir a la página ${pageNumber}`}
                         aria-current={pageNumber === page() ? 'page' : undefined}
                         onClick={() => setPage(pageNumber)}
-                        class={`grid h-9 w-9 place-items-center rounded-xl border text-sm font-semibold transition-colors ${
+                        class={`grid h-11 min-w-11 place-items-center rounded-xl border text-sm font-semibold transition-[background-color,border-color,color,transform] active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent ${
                           pageNumber === page()
                             ? 'border-transparent bg-finzz-accent font-bold text-[#03263c]'
                             : 'border-finzz-border-strong/60 text-finzz-text hover:border-finzz-accent/60 hover:bg-finzz-accent-bg hover:text-finzz-heading'

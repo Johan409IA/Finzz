@@ -17,12 +17,12 @@ interface ExpenseListProps {
 
 export default function ExpenseList(props: ExpenseListProps) {
   return (
-    <section aria-labelledby="expense-list-title" class={`dashboard-list-card ${cardClass} p-3 text-left lg:px-5 lg:pt-4 lg:pb-4`}>
+    <section aria-labelledby="expense-list-title" class={`dashboard-list-card ${cardClass} p-3 text-left lg:px-4 lg:py-3`}>
       <header class="mb-2 flex flex-wrap items-start justify-between gap-2 lg:mb-0">
-        <div class="flex items-start gap-3 lg:gap-7">
+        <div class="flex items-start gap-3">
           <span
             aria-hidden="true"
-            class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-finzz-info/15 text-finzz-info lg:h-12 lg:w-12"
+            class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-finzz-info/15 text-finzz-info"
           >
             <ClockIcon size={20} strokeWidth={2} />
           </span>
@@ -64,7 +64,36 @@ export default function ExpenseList(props: ExpenseListProps) {
       </Show>
 
       <Show when={!props.loading && !props.error && props.expenses.length > 0}>
-        <div class="-mx-2 overflow-x-auto">
+        <ul class="m-0 grid list-none gap-2 p-0 sm:hidden">
+          <For each={props.expenses}>
+            {(expense) => (
+              <li class="rounded-xl border border-finzz-border/70 bg-finzz-bg-soft/40 p-3">
+                <div class="flex min-w-0 items-center gap-2">
+                  <span
+                    aria-hidden="true"
+                    class="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-finzz-border/70 bg-finzz-code/70"
+                    style={{ color: categoryChartColor(expense.category.slug) }}
+                  >
+                    {categoryIcon(expense.category.slug, 16)}
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <strong class="block truncate text-sm font-semibold text-finzz-heading">
+                      {expense.description || expense.category.name}
+                    </strong>
+                    <span class="block truncate text-xs text-finzz-text">{expense.category.name}</span>
+                  </span>
+                </div>
+                <div class="mt-3 flex items-center justify-between gap-3 border-t border-finzz-border/50 pt-2 text-sm">
+                  <span class="text-finzz-text">{formatDate(expense.expenseDate)}</span>
+                  <strong class="shrink-0 font-semibold tabular-nums text-finzz-heading">
+                    {formatCurrency(expense.amount)}
+                  </strong>
+                </div>
+              </li>
+            )}
+          </For>
+        </ul>
+        <div class="hidden overflow-x-auto sm:block">
           <table class="w-full min-w-[560px] border-collapse text-left text-sm">
             <colgroup>
               <col style={{ width: '36.5%' }} />

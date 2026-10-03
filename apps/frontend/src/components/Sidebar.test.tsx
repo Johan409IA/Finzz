@@ -42,8 +42,8 @@ describe('Sidebar', () => {
   test('muestra el nombre del usuario y cierra sesión', () => {
     renderAt('/historial')
 
-    expect(screen.getByText('Johan Castillon')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: /cerrar sesión/i }))
+    expect(screen.getAllByText('Johan Castillon')).toHaveLength(2)
+    fireEvent.click(screen.getAllByRole('button', { name: /cerrar sesión/i })[0]!)
 
     expect(signOut).toHaveBeenCalled()
   })

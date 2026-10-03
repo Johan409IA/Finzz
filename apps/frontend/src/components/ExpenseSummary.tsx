@@ -24,18 +24,18 @@ interface ExpenseSummaryProps {
 }
 
 const segmentBaseClass =
-  'rounded-lg px-5 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent lg:w-[134px] lg:py-2.5'
+  'min-h-11 rounded-lg px-5 py-2 text-sm transition-[background-color,color,transform] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent lg:w-[124px] lg:py-2'
 const segmentActiveClass = 'bg-finzz-accent font-bold text-[#03263c] shadow-[0_8px_22px_rgba(28,227,183,0.2)]'
 const segmentInactiveClass = 'font-semibold text-finzz-text hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
 
 const pickerClass =
-  'relative inline-flex items-center gap-2 rounded-xl border border-finzz-border bg-finzz-bg-soft/60 px-3.5 py-2 transition-colors focus-within:border-finzz-accent lg:w-[264px] lg:justify-between'
+  'relative inline-flex min-h-11 items-center gap-2 rounded-xl border border-finzz-border bg-finzz-bg-soft/60 px-3.5 py-2 transition-[border-color,box-shadow] hover:border-finzz-border-strong focus-within:border-finzz-accent focus-within:ring-2 focus-within:ring-finzz-accent/20 lg:w-[248px] lg:justify-between'
 
 const cardIconClass = 'grid h-8 w-8 shrink-0 place-items-center rounded-xl'
 
-const chartAreaClass = 'h-[190px] min-h-0 lg:h-full'
+const chartAreaClass = 'h-[190px] min-h-0 sm:h-[210px] md:h-[190px] lg:h-full'
 
-const chartCardClass = `${cardClass} m-0 grid min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3 overflow-hidden p-4 lg:p-5`
+const chartCardClass = `${cardClass} m-0 grid min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3 overflow-hidden p-3 lg:p-4`
 
 interface MetricCardProps {
   label: string
@@ -49,8 +49,8 @@ function MetricCard(props: MetricCardProps) {
     props.tone === 'accent' ? 'bg-finzz-accent/15 text-finzz-accent' : 'bg-finzz-info/15 text-finzz-info'
 
   return (
-    <div class={`${cardClass} flex items-center gap-3 p-3 lg:gap-7 lg:px-5 lg:py-4`}>
-      <span aria-hidden="true" class={`${cardIconClass} h-16 w-16 rounded-full ${badgeClass()}`}>
+    <div class={`${cardClass} flex items-center gap-3 p-3 lg:gap-4 lg:px-4 lg:py-3`}>
+      <span aria-hidden="true" class={`${cardIconClass} h-10 w-10 rounded-full ${badgeClass()}`}>
         {props.icon}
       </span>
       <span class="grid min-w-0">
@@ -97,12 +97,12 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
   return (
     <section
       aria-labelledby="expense-summary-title"
-      class="dashboard-summary grid gap-4 lg:flex lg:flex-none lg:flex-col lg:gap-4"
+      class="dashboard-summary grid gap-3 lg:flex lg:flex-none lg:flex-col lg:gap-3"
     >
       <h2 id="expense-summary-title" class="sr-only">Resumen del periodo</h2>
 
-      <div class="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:mx-5 lg:shrink-0">
-        <fieldset class="flex flex-wrap items-center gap-3 lg:gap-9">
+      <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between lg:shrink-0">
+        <fieldset class="flex flex-wrap items-center gap-3 lg:gap-6">
           <legend class="sr-only">Periodo</legend>
           <div
             role="group"
@@ -217,7 +217,7 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
                 </p>
               }
             >
-                <div class="dashboard-chart-grid grid min-h-0 gap-4 lg:h-[345px] lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+                <div class="dashboard-chart-grid grid min-h-0 gap-3 lg:h-[280px] lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
                 <figure class={chartCardClass}>
                   <figcaption class="flex items-start gap-3">
                     <span aria-hidden="true" class={`${cardIconClass} bg-finzz-info/15 text-finzz-info`}>
@@ -260,7 +260,7 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
                     </span>
                   </figcaption>
 
-                    <div class="dashboard-category-content grid min-h-0 gap-4 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] lg:min-h-0">
+                    <div class="dashboard-category-content grid min-h-0 gap-3 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)] md:items-center lg:min-h-0">
                       <div class={chartAreaClass}>
                       <CategoryDonutChart
                         categories={donutCategories()}

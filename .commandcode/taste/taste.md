@@ -1,0 +1,41 @@
+- Uses OpenSpec (openspec) and its "explore" skill for exploring/designing app ideas. Confidence: 0.7
+- Communicates in Spanish. Confidence: 0.9
+- Prefers to execute OpenSpec capabilities sequentially (one propose/apply/sync/archive cycle at a time) rather than in parallel, even when capabilities are independent. Confidence: 0.8
+- Expects the agent to verify tooling/CLI availability directly (check PATH, run the command) before assuming it is missing and falling back to manual workarounds; wants the official tooling used when present. Confidence: 0.9
+- Prefers to resolve open design/architecture questions and record the resulting decisions explicitly (structured confirmation) before writing specs or code, and expects those decisions to be captured faithfully. Confidence: 0.6
+- Prefers that additional CLIs/tools be invoked only when actually needed, not preemptively. Confidence: 0.6
+- Uses Bun as the runtime, package manager, and test runner (bun add / bun run / bun test). Confidence: 0.7
+- Prefers TypeScript across backend and frontend. Confidence: 0.6
+- Stack: Fastify backend (with jose for JWT verification) and SolidJS + Vite frontend. Confidence: 0.6
+- Expects changes to be verified with automated tests plus typecheck/build before completion. Confidence: 0.5
+- Uses the Playwright CLI (playwright-cli skill) for browser testing/automation. Confidence: 0.8
+- Uses Microsoft Edge as the browser for Playwright (--browser=msedge) rather than the default bundled Chromium, to avoid downloading the Chromium binary and reuse the locally installed Edge. Confidence: 0.9
+- When reviewing visual/design work, expects the agent to self-inspect the rendered UI in a real browser (Playwright/Edge) against the reference screenshot, and will provide real login credentials so authenticated screens can be opened for that review. Confidence: 0.8
+- When diagnosing integration/auth bugs, expects real end-to-end verification against the actual external service (e.g., sign up + log in through Playwright, decode real JWTs to inspect claims/algorithms) to find the root cause rather than trusting documented assumptions. Confidence: 0.7
+- Works on Windows: absolute Windows paths (e.g., D:\Codigo\...), cmd/PowerShell shell commands, and tools like where.exe / dir / Get-NetTCPConnection for lookup. Confidence: 0.8
+- Uses InsForge as the auth provider (frontend SDK) and runs its CLI via `npx @insforge/cli` (not a globally installed `insforge` binary) for config, metadata, secrets, and database migrations. Confidence: 0.9
+- Configures InsForge email verification via magic link (not code), with the post-verification redirect landing on the app's login page, which then shows a success/error message before the user signs in. Confidence: 0.6
+- Once the user confirms a proposed plan (e.g., a data-modifying command on shared infrastructure), they expect the agent to proceed and finish the remaining tasks autonomously without further check-ins. Confidence: 0.6
+- Prefers to run only the important/critical tests rather than exhaustive testing, and to finish as soon as possible once the critical path is verified. Confidence: 0.8
+- Prefers to define and bound the project scope (MVP) up front so it doesn't feel endless, and expects the README to document the app's actual, implemented functionality (not planned/aspirational features) so other developers understand what it does. Confidence: 0.7
+- When orchestrating sub-agents, prefers the main agent (CommandCode, this chat) to write the production/implementation code (backend + frontend) and the delegated sub-agent (OpenCode) to write and run the tests and final verification — not the reverse. Confidence: 0.9
+- Prefers sequential, interleaved handoffs between coding and testing: backend implementation → delegate backend tests to OpenCode → frontend implementation → delegate final tests/verification to OpenCode, rather than one agent doing everything or dispatching all code first. Confidence: 0.8
+- Uses Orca CLI (`orca orchestration ...`) to delegate tasks to OpenCode sub-agent workers, monitor deliveries, and acknowledge/release workers. Confidence: 0.6
+- Prefers archiving OpenSpec changes with the official `openspec archive "<change>" --yes` command (which atomically syncs the delta spec and moves the change to archive) rather than manually syncing specs beforehand; only uses `--skip-specs` for changes without spec deltas. Confidence: 0.7
+- When giving a new instruction (especially with visual references), wants the agent to first confirm it understands and take no other action (no edits or changes) until told to proceed. Confidence: 0.8
+- Treats provided screenshots/images as official visual references to implement as faithfully as possible (composition, colors, typography, spacing, etc.) across screens in the same visual system, while keeping the project's existing real logic (validation, navigation, error handling) and not inventing behavior from the image. Confidence: 0.85
+- Prefers lucide-solid for icons rather than hand-written inline SVGs. Confidence: 0.9
+- Prefers full-viewport (full-bleed) backgrounds on authentication screens so the background covers the entire screen on desktop. Confidence: 0.7
+- When provided design mockups as visual references, wants only the visual style applied and never literal data, texts, dates, amounts, or records copied from them; the app must keep showing its own real data. Confidence: 0.8
+- Uses Tailwind CSS for styling the frontend. Confidence: 0.9
+- Prefers to reuse the exact color palette and design already established in other screens (e.g., login/register) to keep the visual system consistent when extending it to new screens. Confidence: 0.7
+- When applying a visual direction/design system, prefers to build the foundation first (theme tokens, shared UI classes, and theme-color) before restyling individual components or pages. Confidence: 0.6
+- Prefers create/edit forms as modal dialogs (overlay) opened by a button, rather than inline form sections embedded in the page (e.g., moving "Registrar gasto" off the dashboard into a modal like Historial). Confidence: 0.8
+- Prefers the main content area of authenticated screens to scroll on desktop while the sidebar/navbar stays static (fixed), so long lists (e.g., "Últimos gastos") are fully reachable — rather than shrinking everything to force a single non-scrolling viewport. Confidence: 0.85
+- Prefers responsive layouts where the "no scroll" constraint applies only to desktop; on mobile/tablet, natural page scroll is acceptable so all content remains visible and nothing is hidden or cut off. Confidence: 0.7
+- Prefers row-level edit/delete actions only on the dedicated management screen (e.g., Historial) and not on read-only summary/preview lists (e.g., "Últimos 5 gastos"). Confidence: 0.7
+- Is willing to modify or remove existing tests when a UI change (button rename, form moved into a modal) requires it, rather than constraining the UI to keep matching stale tests. Confidence: 0.7
+- In this monorepo the root `bun dev` starts both servers, but for visual verification with loaded data the user expects frontend and backend to be started separately (apps/frontend and apps/backend). Confidence: 0.7
+- Prefers lists/legends inside cards to show all items fully (e.g., all six categories in the donut chart) without an internal scrollbar, rather than clipping or adding overflow scrolling. Confidence: 0.7
+- Before performing a destructive git operation (e.g., deleting a branch), wants the agent to first verify there is no unique/unmerged work that would be lost (check for commits/ancestry/diffs and remote presence), then proceed. Confidence: 0.8
+- Prefers a show/hide password visibility toggle (eye icon) on password fields in auth forms (login/register), with an accessible label/state. Confidence: 0.85

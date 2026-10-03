@@ -22,9 +22,10 @@ const NAV_ITEMS = [
   },
 ]
 
-const activeLinkClass = 'border border-finzz-border/70 bg-finzz-surface-2 text-finzz-heading'
+const activeLinkClass =
+  'border border-finzz-border/70 bg-finzz-surface-2 text-finzz-heading focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent'
 const inactiveLinkClass =
-  'border border-transparent text-finzz-text hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
+  'border border-transparent text-finzz-text transition-[background-color,color,border-color,transform] hover:bg-finzz-accent-bg/60 hover:text-finzz-heading active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent'
 
 const activeIconClass = 'text-finzz-accent'
 const inactiveIconClass = 'text-finzz-muted'
@@ -44,23 +45,26 @@ export default function Sidebar() {
 
   return (
     <>
-      <header class="fixed inset-x-0 top-0 z-30 border-b border-finzz-border/80 bg-finzz-bg/95 backdrop-blur lg:hidden">
-        <div class="flex items-center gap-3 px-4 py-3">
-          <img src="/logo.png" alt="Finzz" class="h-10 w-auto object-contain" />
-          <nav aria-label="Principal" class="ml-auto flex items-center gap-1">
+      <header class="fixed inset-x-0 top-0 z-30 border-b border-finzz-border/80 bg-finzz-bg/95 pt-[env(safe-area-inset-top)] backdrop-blur lg:hidden">
+        <div class="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2 sm:px-6">
+          <img src="/logo.png" alt="Finzz" class="h-9 w-auto shrink-0 object-contain" />
+          <span class="hidden min-w-0 truncate text-sm font-semibold text-finzz-heading sm:block">
+            {displayName()}
+          </span>
+          <nav aria-label="Principal" class="ml-auto hidden items-center gap-1 sm:flex">
             <For each={NAV_ITEMS}>
               {(item) => (
                 <A
                   href={item.href}
-                  aria-label={item.label}
                   aria-current={isActive(item.href) ? 'page' : undefined}
-                  class={`grid h-10 w-10 place-items-center rounded-xl transition-colors ${
+                  class={`inline-flex min-h-11 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent ${
                     isActive(item.href)
-                      ? 'border border-finzz-border/70 bg-finzz-surface-2 text-finzz-accent'
-                      : 'border border-transparent text-finzz-muted hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
+                      ? 'border-finzz-border/70 bg-finzz-surface-2 text-finzz-accent'
+                      : 'border-transparent text-finzz-text hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
                   }`}
                 >
                   {item.icon(isActive(item.href) ? activeIconClass : inactiveIconClass)}
+                  {item.label}
                 </A>
               )}
             </For>
@@ -68,15 +72,35 @@ export default function Sidebar() {
           <button
             type="button"
             onClick={handleSignOut}
-            class="rounded-xl border border-finzz-border-strong/80 px-3 py-2 text-xs font-medium text-finzz-heading"
+            aria-label="Cerrar sesión"
+            class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-finzz-border-strong/80 text-finzz-heading transition-colors hover:border-finzz-accent/60 hover:bg-finzz-accent-bg active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent sm:w-auto sm:px-3"
           >
-            Salir
+            <LogOutIcon size={17} strokeWidth={2} aria-hidden="true" />
+            <span class="hidden text-xs font-medium sm:inline">Cerrar sesión</span>
           </button>
         </div>
+        <nav aria-label="Principal" class="grid grid-cols-2 gap-2 border-t border-finzz-border/50 px-4 py-2 sm:hidden">
+          <For each={NAV_ITEMS}>
+            {(item) => (
+              <A
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                class={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-colors active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent ${
+                  isActive(item.href)
+                    ? 'border-finzz-border/70 bg-finzz-surface-2 text-finzz-accent'
+                    : 'border-transparent text-finzz-text hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
+                }`}
+              >
+                {item.icon(isActive(item.href) ? activeIconClass : inactiveIconClass)}
+                {item.label}
+              </A>
+            )}
+          </For>
+        </nav>
       </header>
 
         <aside class="hidden lg:sticky lg:top-0 lg:flex lg:h-full lg:w-[15.5rem] lg:shrink-0 lg:p-2">
-        <div class="flex min-h-0 flex-1 flex-col rounded-2xl border border-finzz-border/80 bg-gradient-to-b from-finzz-surface-2/70 to-finzz-bg-soft/40 p-3">
+        <div class="flex min-h-0 flex-1 flex-col rounded-2xl border border-finzz-border/80 bg-finzz-surface/80 p-3 shadow-[0_10px_30px_rgba(0,0,0,0.16)]">
           <div class="flex items-center justify-center px-2 pb-4 pt-2">
             <img src="/logo.png" alt="Finzz" class="h-14 w-auto object-contain" />
           </div>
@@ -87,7 +111,7 @@ export default function Sidebar() {
                 <A
                   href={item.href}
                   aria-current={isActive(item.href) ? 'page' : undefined}
-                  class={`relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors ${
+                  class={`relative flex min-h-11 items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-[background-color,color,border-color,transform] active:scale-[0.98] ${
                     isActive(item.href) ? activeLinkClass : inactiveLinkClass
                   }`}
                 >

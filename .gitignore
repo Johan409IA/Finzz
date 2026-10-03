@@ -35,8 +35,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # InsForge & AI agent skills
 .insforge
-.agent
-.agents
 .augment
 .claude
 .cline
@@ -49,6 +47,5 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .windsurf
 
 # otros
-.commandcode
 .playwright-cli
 .vercel

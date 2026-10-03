@@ -1,0 +1,11 @@
+{
+  "disabledSkills": [
+    "computer-use",
+    "insforge",
+    "insforge-cli",
+    "insforge-debug",
+    "insforge-integrations",
+    "orca-cli",
+    "orchestration"
+  ]
+}

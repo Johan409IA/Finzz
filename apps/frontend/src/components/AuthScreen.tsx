@@ -1,4 +1,6 @@
-import { Show, type JSX } from 'solid-js'
+import { createSignal, Show, type JSX } from 'solid-js'
+import EyeIcon from 'lucide-solid/icons/eye'
+import EyeOffIcon from 'lucide-solid/icons/eye-off'
 import LoaderCircle from 'lucide-solid/icons/loader-circle'
 
 const labelClass = 'grid gap-2 text-left text-base font-medium text-[#f4f7fb]'
@@ -93,16 +95,19 @@ interface AuthFieldProps {
 }
 
 export function AuthField(props: AuthFieldProps) {
+  const inputId = () => `${props.label.toLowerCase().replace(/\s+/g, '-')}-input`
   const errorId = () => `${props.label.toLowerCase().replace(/\s+/g, '-')}-error`
+  const [passwordVisible, setPasswordVisible] = createSignal(false)
 
   return (
-    <label class={labelClass}>
-      {props.label}
+    <div class={labelClass}>
+      <label for={inputId()}>{props.label}</label>
       <span class="relative block">
         <span class={iconClass}>{props.icon}</span>
         <input
+          id={inputId()}
           ref={props.inputRef}
-          type={props.type}
+          type={props.type === 'password' && passwordVisible() ? 'text' : props.type}
           value={props.value}
           onInput={(event) => props.onInput(event.currentTarget.value)}
           required={props.required}
@@ -111,13 +116,26 @@ export function AuthField(props: AuthFieldProps) {
           minLength={props.minLength}
           aria-invalid={props.error ? 'true' : undefined}
           aria-describedby={props.error ? errorId() : undefined}
-          class={props.error ? invalidInputClass : inputClass}
+          class={`${props.error ? invalidInputClass : inputClass} ${props.type === 'password' ? 'pr-12' : ''}`}
         />
+        <Show when={props.type === 'password'}>
+          <button
+            type="button"
+            aria-label={passwordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            aria-pressed={passwordVisible()}
+            onClick={() => setPasswordVisible(!passwordVisible())}
+            class="absolute inset-y-0 right-1 grid w-10 place-items-center rounded-lg text-[#91afd0] transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#69f8d7]"
+          >
+            <Show when={passwordVisible()} fallback={<EyeIcon size={20} strokeWidth={1.8} aria-hidden="true" />}>
+              <EyeOffIcon size={20} strokeWidth={1.8} aria-hidden="true" />
+            </Show>
+          </button>
+        </Show>
       </span>
       <Show when={props.error}>
         {(message) => <span id={errorId()} class="text-left text-sm text-[#ff8c9b]">{message()}</span>}
       </Show>
-    </label>
+    </div>
   )
 }
 

@@ -1,8 +1,6 @@
 import EChartsBase from './EChartsBase'
 import { buildDonutOption, buildMonthlyLineOption, buildWeeklyBarOption } from '../../lib/charts'
 import type { DailyTotal, DonutCategory } from '../../lib/charts'
-import { formatCurrency } from '../../lib/format'
-
 interface TrendProps {
   data: DailyTotal[]
   label: string
@@ -50,10 +48,6 @@ export function CategoryDonutChart(props: DonutProps) {
         height={260}
         fill
       />
-      <div aria-hidden="true" class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-        <strong class="dashboard-donut-center-value text-finzz-heading">{formatCurrency(props.total)}</strong>
-        <span class="dashboard-donut-center-label text-finzz-muted">Total</span>
-      </div>
     </div>
   )
 }

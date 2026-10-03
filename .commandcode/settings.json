@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(where:*)",
+      "Shell(openspec:*)",
+      "Shell(powershell -NoProfile -Command \"Get-ChildItem -Force 'openspec\\changes\\archive\\2026-09-12-auth' | Select-Object Name; Write-Output '---'; Get-ChildItem -Force -Recurse 'openspec\\changes\\archive\\2026-09-12-auth' -File | Select-Object FullName\")",
+      "Shell(npx @insforge/cli current --json)",
+      "Shell(npx @insforge/cli docs --help)",
+      "Shell(npx @insforge/cli db migrations new --help)",
+      "Shell(npx @insforge/cli docs db typescript)",
+      "Shell(apps/backend/.env,apps/frontend/.env:*)",
+      "Shell(foreach:*)",
+      "Shell({:*)",
+      "Shell(Get-Content:*)",
+      "Shell(ForEach-Object:*)",
+      "Shell( :*)",
+      "Shell(+:*)",
+      "Shell(}:*)",
+      "Shell(bun:*)",
+      "Shell(playwright-cli:*)",
+      "Shell(npx @insforge/cli db query \"select amount, expense_date, description, user_id from public.expenses order by created_at desc limit 3;\" --json)",
+      "Shell(Access-Control-Request-Method:*)",
+      "Shell(Access-Control-Request-Headers:*)",
+      "Shell(Invoke-WebRequest:*)",
+      "Shell(Select-Object:*)",
+      "powershell"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

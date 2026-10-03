@@ -82,11 +82,12 @@ describe('HistoryPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Mostrando 1–10 de 12 gastos')).toBeTruthy()
     })
-    expect(screen.getAllByRole('button', { name: 'Editar' })).toHaveLength(10)
+    expect(screen.getAllByRole('button', { name: 'Editar' })).toHaveLength(20)
     expect(screen.getByRole('columnheader', { name: 'Descripción' })).toBeTruthy()
     expect(screen.getByRole('columnheader', { name: 'Categoría' })).toBeTruthy()
     expect(screen.getByRole('columnheader', { name: 'Fecha' })).toBeTruthy()
     expect(screen.getByRole('columnheader', { name: 'Importe' })).toBeTruthy()
+    expect(screen.getAllByText('Editar')).toHaveLength(20)
     expect(screen.getAllByText((text) => text.includes('S/')).length).toBeGreaterThan(0)
   })
 

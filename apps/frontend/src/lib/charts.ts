@@ -53,6 +53,12 @@ const TOOLTIP_STYLE = {
   borderWidth: 1,
   padding: [8, 12] as unknown as number,
   textStyle: { color: '#f4f7fb', fontSize: 12 },
+  showDelay: 80,
+  hideDelay: 180,
+  transitionDuration: 0.12,
+  triggerOn: 'mousemove|click',
+  confine: true,
+  enterable: false,
 }
 
 const AXIS_STYLE = {
@@ -249,9 +255,20 @@ export function buildWeeklyBarOption(dailyTotals: DailyTotal[]) {
 }
 
 export function buildDonutOption(categories: DonutCategory[]) {
+  const total = categories.reduce((sum, category) => sum + category.amount, 0)
+
   return {
     backgroundColor: 'transparent',
     ...BASE_ANIMATION,
+    aria: { enabled: true, decal: { show: false } },
+    title: {
+      text: formatCurrency(total),
+      subtext: 'Total',
+      left: 'center',
+      top: 'center',
+      textStyle: { color: '#f4f7fb', fontSize: 15, fontWeight: 700 },
+      subtextStyle: { color: '#91afd0', fontSize: 10 },
+    },
     color: CATEGORY_CHART_COLORS,
     tooltip: {
       ...TOOLTIP_STYLE,

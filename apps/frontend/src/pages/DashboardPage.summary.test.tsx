@@ -216,7 +216,7 @@ describe('DashboardPage expense summary', () => {
     render(() => <DashboardPage />)
 
     await waitFor(() => {
-      expect(screen.getByText('Almuerzo')).toBeTruthy()
+      expect(screen.getAllByText('Almuerzo')).toHaveLength(2)
     })
     expect(screen.getByRole('heading', { name: 'Últimos 5 gastos' })).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Editar' })).toBeNull()
