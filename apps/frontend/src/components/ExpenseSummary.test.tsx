@@ -72,14 +72,11 @@ describe('ExpenseSummary', () => {
     expect(screen.getByText('Total del mes')).toBeTruthy()
     expect(screen.getByText('Gastos registrados')).toBeTruthy()
     expect(screen.getByText('4')).toBeTruthy()
-    expect(screen.getByText('Alimentación')).toBeTruthy()
-    expect(screen.getByText('Transporte')).toBeTruthy()
-    expect(screen.getByText('Ocio')).toBeTruthy()
-    expect(screen.getByRole('progressbar', { name: 'Porcentaje de Alimentación' })).toBeTruthy()
-    expect(screen.getByRole('progressbar', { name: 'Porcentaje de Transporte' })).toBeTruthy()
-    expect(
-      screen.getByRole('progressbar', { name: 'Porcentaje de Alimentación' }).getAttribute('aria-valuenow'),
-    ).toBe('60')
+    expect(screen.getAllByText('Alimentación')).toHaveLength(2)
+    expect(screen.getAllByText('Transporte')).toHaveLength(2)
+    expect(screen.getAllByText('Ocio')).toHaveLength(2)
+    expect(screen.getByRole('table', { name: /Gastos por categoría/ })).toBeTruthy()
+    expect(screen.getByRole('row', { name: /Alimentación S\/ 60\.00 60\.00%/ })).toBeTruthy()
   })
 
   test('muestra estado vacío sin reemplazar el selector', () => {
@@ -140,7 +137,7 @@ describe('ExpenseSummary', () => {
     expect(screen.getByText('Total semanal')).toBeTruthy()
     expect(screen.getByLabelText('Semana del resumen')).toBeTruthy()
     expect(screen.queryByLabelText('Mes del resumen')).toBeNull()
-    expect(screen.getByRole('progressbar', { name: 'Porcentaje de Alimentación' })).toBeTruthy()
+    expect(screen.getByRole('table', { name: /Gastos por categoría/ })).toBeTruthy()
   })
 
   test('notifica el cambio de tipo de periodo', () => {
@@ -179,9 +176,8 @@ describe('ExpenseSummary', () => {
 
     expect(screen.getAllByText((text) => text.includes('S/')).length).toBeGreaterThan(0)
     expect(screen.getByRole('region', { name: 'Resumen del periodo' })).toBeTruthy()
-    const progressbar = screen.getByRole('progressbar', { name: 'Porcentaje de Alimentación' })
-    expect(progressbar.getAttribute('aria-valuemin')).toBe('0')
-    expect(progressbar.getAttribute('aria-valuemax')).toBe('100')
+    expect(screen.getByRole('table', { name: /Gastos por categoría/ })).toBeTruthy()
+    expect(screen.getByText('60.00%')).toBeTruthy()
     expect(screen.getByText('Periodo')).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Mensual' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Semanal' })).toBeTruthy()

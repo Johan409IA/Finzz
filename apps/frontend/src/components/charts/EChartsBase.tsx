@@ -1,11 +1,11 @@
 import { createEffect, createSignal, onCleanup, onMount, Show } from 'solid-js'
 import * as echarts from 'echarts/core'
 import { BarChart, LineChart, PieChart } from 'echarts/charts'
-import { GridComponent, TitleComponent, TooltipComponent } from 'echarts/components'
+import { AriaComponent, GridComponent, TitleComponent, TooltipComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EChartsCoreOption } from 'echarts/core'
 
-echarts.use([BarChart, LineChart, PieChart, GridComponent, TitleComponent, TooltipComponent, CanvasRenderer])
+echarts.use([AriaComponent, BarChart, LineChart, PieChart, GridComponent, TitleComponent, TooltipComponent, CanvasRenderer])
 
 interface EChartsBaseProps {
   option: EChartsCoreOption

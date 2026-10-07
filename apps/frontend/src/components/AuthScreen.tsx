@@ -3,13 +3,13 @@ import EyeIcon from 'lucide-solid/icons/eye'
 import EyeOffIcon from 'lucide-solid/icons/eye-off'
 import LoaderCircle from 'lucide-solid/icons/loader-circle'
 
-const labelClass = 'grid gap-2 text-left text-base font-medium text-[#f4f7fb]'
+const labelClass = 'grid gap-2 text-left text-base font-medium text-finzz-heading'
 
 const inputClass =
-  'h-12 w-full box-border rounded-xl border border-[#416184] bg-[#0a2948]/70 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-[#7690ad] hover:border-[#517a9f] focus:border-[#23e4b4] focus:ring-2 focus:ring-[#23e4b4]/20'
+  'h-12 w-full box-border rounded-xl border border-finzz-border-strong bg-finzz-code/70 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-[#7690ad] hover:border-[#517a9f] focus:border-[#23e4b4] focus:ring-2 focus:ring-[#23e4b4]/20'
 
 const invalidInputClass =
-  'h-12 w-full box-border rounded-xl border border-[#ff8c9b] bg-[#0a2948]/70 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-[#7690ad] focus:border-[#ff8c9b] focus:ring-2 focus:ring-[#ff8c9b]/25'
+  'h-12 w-full box-border rounded-xl border border-finzz-danger bg-finzz-code/70 pl-12 pr-4 text-base text-white outline-none transition placeholder:text-[#7690ad] focus:border-finzz-danger focus:ring-2 focus:ring-finzz-danger/25'
 
 export function validateEmail(value: string): string | null {
   if (!value.trim()) return 'Escribe tu email.'
@@ -17,17 +17,17 @@ export function validateEmail(value: string): string | null {
   return null
 }
 
-const iconClass = 'pointer-events-none absolute inset-y-0 left-4 grid w-5 place-items-center text-[#91afd0]'
+const iconClass = 'pointer-events-none absolute inset-y-0 left-4 grid w-5 place-items-center text-finzz-muted'
 
 export const authSubmitClass =
-  'mt-1 inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-transparent bg-[#1ce3b7] px-3 text-base font-bold text-[#03263c] shadow-[0_8px_22px_rgba(28,227,183,0.18)] transition touch-manipulation hover:bg-[#35efc5] active:bg-[#12cf9f] active:shadow-[0_4px_14px_rgba(28,227,183,0.12)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#69f8d7] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-[#1ce3b7]'
+  'mt-1 inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-transparent bg-finzz-accent px-3 text-base font-bold text-finzz-on-accent shadow-[0_8px_22px_rgba(28,227,183,0.18)] transition touch-manipulation hover:bg-finzz-accent-hover active:bg-finzz-accent-strong active:shadow-[0_4px_14px_rgba(28,227,183,0.12)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[#69f8d7] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-finzz-accent'
 
 export const authLinkClass =
-  'inline-block py-3 font-semibold text-[#19e6be] underline decoration-[#19e6be]/60 underline-offset-4 transition hover:text-[#6cf6d3] active:text-[#0fd3ad] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-[#69f8d7]'
+  'inline-block py-3 font-semibold text-[#19e6be] underline decoration-[#19e6be]/60 underline-offset-4 transition hover:text-finzz-accent-light active:text-[#0fd3ad] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-[#69f8d7]'
 
 export const authLinkLineClass = 'm-0 text-center text-base text-[#a7bad0]'
 
-export const authErrorClass = 'm-0 text-left text-sm text-[#ff8c9b]'
+export const authErrorClass = 'm-0 text-left text-sm text-finzz-danger'
 
 export const authInfoClass = 'm-0 text-left text-sm text-[#55e3b8]'
 
@@ -40,7 +40,7 @@ interface AuthScreenProps {
 
 export function AuthScreen(props: AuthScreenProps) {
   return (
-    <main class="relative isolate flex min-h-svh items-center justify-center overflow-hidden bg-[#041b31] px-4 py-8 text-[#dbe7f4] sm:px-6 sm:py-10">
+    <main class="relative isolate flex min-h-svh items-center justify-center overflow-hidden bg-finzz-bg px-4 py-8 text-[#dbe7f4] sm:px-6 sm:py-10">
       <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
         <div class="absolute -left-16 -top-20 h-56 w-56 rounded-full bg-[#0b6e91]/20 blur-3xl sm:-left-20 sm:-top-24 sm:h-80 sm:w-80" />
         <div class="absolute -bottom-28 -left-24 h-64 w-64 rounded-full bg-[#0b5c87]/20 blur-3xl sm:-bottom-40 sm:-left-32 sm:h-96 sm:w-96" />
@@ -58,14 +58,14 @@ export function AuthScreen(props: AuthScreenProps) {
           <img src="/logo.png" alt="Logotipo de Finzz" class="h-auto w-[112px] object-contain drop-shadow-[0_0_24px_rgba(18,182,194,0.18)] sm:w-[138px] lg:w-[145px]" />
           <div>
             <h1 class="m-0 text-[1.75rem] font-bold leading-tight tracking-[-0.035em] text-white sm:text-[2.15rem] lg:text-[2.35rem]">{props.title}</h1>
-            <p class="m-0 mt-2 text-base text-[#afc0d4] sm:text-lg">{props.subtitle}</p>
+            <p class="m-0 mt-2 text-base text-finzz-text sm:text-lg">{props.subtitle}</p>
           </div>
         </div>
 
         <form
           noValidate
           onSubmit={props.onSubmit}
-          class="grid w-full gap-4 rounded-2xl border border-[#17618b] bg-[#062b49]/75 p-5 shadow-[0_22px_70px_rgba(0,0,0,0.22)] backdrop-blur-sm sm:gap-5 sm:p-8"
+          class="grid w-full gap-4 rounded-2xl border border-finzz-border bg-finzz-surface/75 p-5 shadow-[0_22px_70px_rgba(0,0,0,0.22)] backdrop-blur-sm sm:gap-5 sm:p-8"
         >
           {props.children}
         </form>
@@ -124,7 +124,7 @@ export function AuthField(props: AuthFieldProps) {
             aria-label={passwordVisible() ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             aria-pressed={passwordVisible()}
             onClick={() => setPasswordVisible(!passwordVisible())}
-            class="absolute inset-y-0 right-1 grid w-10 place-items-center rounded-lg text-[#91afd0] transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#69f8d7]"
+            class="absolute inset-y-0 right-1 grid w-10 place-items-center rounded-lg text-finzz-muted transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#69f8d7]"
           >
             <Show when={passwordVisible()} fallback={<EyeIcon size={20} strokeWidth={1.8} aria-hidden="true" />}>
               <EyeOffIcon size={20} strokeWidth={1.8} aria-hidden="true" />
@@ -133,7 +133,7 @@ export function AuthField(props: AuthFieldProps) {
         </Show>
       </span>
       <Show when={props.error}>
-        {(message) => <span id={errorId()} class="text-left text-sm text-[#ff8c9b]">{message()}</span>}
+        {(message) => <span id={errorId()} class="text-left text-sm text-finzz-danger">{message()}</span>}
       </Show>
     </div>
   )
@@ -151,7 +151,8 @@ export function AuthSubmitButton(props: AuthSubmitButtonProps) {
       <Show when={props.loading}>
         <LoaderCircle size={18} strokeWidth={2.4} class="animate-spin" aria-hidden="true" />
       </Show>
-      <span>{props.loading ? props.loadingLabel : props.label}</span>
+      <span>{props.label}</span>
+      <span class="sr-only" aria-live="polite">{props.loading ? props.loadingLabel : ''}</span>
     </button>
   )
 }

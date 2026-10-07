@@ -295,9 +295,6 @@ describe('DashboardPage expense summary', () => {
     await waitForSummary()
     expect(screen.getAllByText((text) => text.includes('S/')).length).toBeGreaterThan(0)
     expect(screen.getByRole('region', { name: 'Resumen del periodo' })).toBeTruthy()
-    expect(screen.getByRole('progressbar', { name: 'Porcentaje de Alimentación' })).toBeTruthy()
-    expect(
-      screen.getByRole('progressbar', { name: 'Porcentaje de Alimentación' }).getAttribute('aria-valuenow'),
-    ).toBe('100')
+    expect(screen.getByRole('row', { name: /Alimentación S\/ 100\.00 100\.00%/ })).toBeTruthy()
   })
 })

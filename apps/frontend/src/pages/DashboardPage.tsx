@@ -1,11 +1,12 @@
 import { createResource, createSignal, Show } from 'solid-js'
 import { A } from '@solidjs/router'
 import ArrowRightIcon from 'lucide-solid/icons/arrow-right'
-import CalendarIcon from 'lucide-solid/icons/calendar'
-import PlusIcon from 'lucide-solid/icons/plus'
 import ExpenseForm from '../components/ExpenseForm'
+import ExpenseDialog from '../components/ExpenseDialog'
 import ExpenseList from '../components/ExpenseList'
 import ExpenseSummary from '../components/ExpenseSummary'
+import PageHeader from '../components/PageHeader'
+import StatusBanner from '../components/StatusBanner'
 import {
   createExpense,
   getExpenseSummary,
@@ -16,8 +17,7 @@ import {
   type ExpensePeriod,
   type ExpensePeriodType,
 } from '../lib/expenses'
-import { currentIsoWeek, currentMonth, formatTodayLong, isoWeekToMonday } from '../lib/format'
-import { pageHeaderClass, primaryButtonClass } from '../lib/ui'
+import { currentIsoWeek, currentMonth, isoWeekToMonday } from '../lib/format'
 
 const RECENT_LIMIT = 5
 
@@ -70,43 +70,20 @@ export default function DashboardPage() {
 
   return (
       <div class="dashboard-page grid gap-4 lg:flex lg:h-full lg:min-h-0 lg:flex-col">
-       <section class={`${pageHeaderClass} gap-3 lg:border-b-0 lg:pb-0`}>
-         <div>
-           <h1 class="m-0 text-2xl font-bold leading-none tracking-tight text-finzz-heading sm:text-4xl">
-            Dashboard
-          </h1>
-          <p class="m-0 text-finzz-text">Visualiza y controla tus gastos personales.</p>
-        </div>
-          <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end lg:min-w-[420px] lg:justify-between xl:min-w-[560px]">
-          <span class="inline-flex items-center gap-2 text-sm text-finzz-text">
-            <CalendarIcon size={16} strokeWidth={2} class="text-finzz-accent" aria-hidden="true" />
-            <span class="capitalize">{formatTodayLong()}</span>
-          </span>
-          <button type="button" onClick={openCreateModal} class={`${primaryButtonClass} w-full sm:w-auto`}>
-            <PlusIcon size={16} strokeWidth={2.4} aria-hidden="true" />
-            Registrar gasto
-          </button>
-        </div>
-      </section>
+      <PageHeader
+        title="Dashboard"
+        subtitle="Visualiza y controla tus gastos personales."
+        onCreate={openCreateModal}
+        class="lg:border-b-0 lg:pb-0"
+        actionsClass="lg:min-w-[420px] lg:justify-between xl:min-w-[560px]"
+      />
 
       <Show when={successMessage()}>
-        {(message) => (
-          <p
-            class="m-0 rounded-xl border border-finzz-accent-border/60 bg-finzz-accent-bg px-4 py-3 text-sm text-finzz-success lg:shrink-0"
-            role="status"
-          >
-            {message()}
-          </p>
-        )}
+        {(message) => <StatusBanner tone="success">{message()}</StatusBanner>}
       </Show>
 
       <Show when={categories.error}>
-        <p
-          class="m-0 rounded-xl border border-finzz-danger-border bg-finzz-danger-bg px-4 py-3 text-sm text-finzz-danger lg:shrink-0"
-          role="alert"
-        >
-          No se pudieron cargar las categorías.
-        </p>
+        <StatusBanner tone="danger">No se pudieron cargar las categorías.</StatusBanner>
       </Show>
 
       <ExpenseSummary
@@ -133,7 +110,7 @@ export default function DashboardPage() {
             <Show when={hasMoreThanRecent()}>
               <A
                 href="/historial"
-                class="inline-flex items-center gap-1.5 text-sm font-semibold text-finzz-accent transition-colors hover:text-[#6cf6d3]"
+                class="inline-flex items-center gap-1.5 text-sm font-semibold text-finzz-accent transition-colors hover:text-finzz-accent-light"
               >
                 Ver historial
                 <ArrowRightIcon size={16} strokeWidth={2.2} aria-hidden="true" />
@@ -144,26 +121,16 @@ export default function DashboardPage() {
       </div>
 
       <Show when={modalOpen()}>
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Registrar gasto"
-          class="fixed inset-0 z-40 grid place-items-center overflow-y-auto bg-[#02101f]/80 p-4 backdrop-blur-sm"
-          onClick={(event) => {
-            if (event.target === event.currentTarget) closeModal()
-          }}
-        >
-          <div class="w-full max-w-lg">
-            <ExpenseForm
-              categories={categories() ?? []}
-              editingExpense={null}
-              saving={saving()}
-              error={mutationError()}
-              onSubmit={handleExpenseSubmit}
-              onCancelEdit={closeModal}
-            />
-          </div>
-        </div>
+        <ExpenseDialog title="Registrar gasto" onClose={closeModal}>
+          <ExpenseForm
+            categories={categories() ?? []}
+            editingExpense={null}
+            saving={saving()}
+            error={mutationError()}
+            onSubmit={handleExpenseSubmit}
+            onCancelEdit={closeModal}
+          />
+        </ExpenseDialog>
       </Show>
     </div>
   )

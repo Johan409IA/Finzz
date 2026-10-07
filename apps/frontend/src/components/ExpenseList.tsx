@@ -1,9 +1,20 @@
 import { For, Show, type JSX } from 'solid-js'
 import ClockIcon from 'lucide-solid/icons/clock'
-import CategoryBadge, { categoryIcon } from './CategoryBadge'
-import { categoryChartColor } from '../lib/charts'
+import CategoryBadge from './CategoryBadge'
+import CategoryIconChip from './CategoryIconChip'
 import { formatCurrency, formatDate } from '../lib/format'
-import { cardClass, cardSubtitleClass, cardTitleClass, tableHeadClass } from '../lib/ui'
+import {
+  amountValueClass,
+  avatarBadgeClass,
+  cardClass,
+  cardSubtitleClass,
+  cardTitleClass,
+  iconBadgeClass,
+  skeletonClass,
+  tableHeadClass,
+  tableHeadRowClass,
+  tableRowClass,
+} from '../lib/ui'
 import type { Expense } from '../lib/expenses'
 
 interface ExpenseListProps {
@@ -20,10 +31,7 @@ export default function ExpenseList(props: ExpenseListProps) {
     <section aria-labelledby="expense-list-title" class={`dashboard-list-card ${cardClass} p-3 text-left lg:px-4 lg:py-3`}>
       <header class="mb-2 flex flex-wrap items-start justify-between gap-2 lg:mb-0">
         <div class="flex items-start gap-3">
-          <span
-            aria-hidden="true"
-            class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-finzz-info/15 text-finzz-info"
-          >
+          <span aria-hidden="true" class={iconBadgeClass('info')}>
             <ClockIcon size={20} strokeWidth={2} />
           </span>
           <div class="min-w-0">
@@ -41,7 +49,7 @@ export default function ExpenseList(props: ExpenseListProps) {
       <Show when={props.loading}>
         <div class="grid gap-2" aria-busy="true" aria-label="Cargando gastos">
           <For each={[1, 2, 3, 4, 5]}>
-            {() => <div class="h-12 animate-pulse rounded-xl bg-finzz-code/70" />}
+            {() => <div class={`h-12 rounded-xl ${skeletonClass}`} />}
           </For>
         </div>
       </Show>
@@ -52,10 +60,7 @@ export default function ExpenseList(props: ExpenseListProps) {
 
       <Show when={!props.loading && !props.error && props.expenses.length === 0}>
         <div class="grid justify-items-center gap-2 px-4 py-10 text-center" role="status">
-          <span
-            aria-hidden="true"
-            class="grid h-10 w-10 place-items-center rounded-full border border-finzz-accent-border/60 bg-finzz-accent/15 text-sm font-bold text-finzz-accent"
-          >
+          <span aria-hidden="true" class={avatarBadgeClass}>
             S/
           </span>
           <h3 class="mb-0 mt-2 text-finzz-heading">Aún no tienes gastos</h3>
@@ -69,13 +74,7 @@ export default function ExpenseList(props: ExpenseListProps) {
             {(expense) => (
               <li class="rounded-xl border border-finzz-border/70 bg-finzz-bg-soft/40 p-3">
                 <div class="flex min-w-0 items-center gap-2">
-                  <span
-                    aria-hidden="true"
-                    class="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-finzz-border/70 bg-finzz-code/70"
-                    style={{ color: categoryChartColor(expense.category.slug) }}
-                  >
-                    {categoryIcon(expense.category.slug, 16)}
-                  </span>
+                  <CategoryIconChip slug={expense.category.slug} />
                   <span class="min-w-0 flex-1">
                     <strong class="block truncate text-sm font-semibold text-finzz-heading">
                       {expense.description || expense.category.name}
@@ -85,7 +84,7 @@ export default function ExpenseList(props: ExpenseListProps) {
                 </div>
                 <div class="mt-3 flex items-center justify-between gap-3 border-t border-finzz-border/50 pt-2 text-sm">
                   <span class="text-finzz-text">{formatDate(expense.expenseDate)}</span>
-                  <strong class="shrink-0 font-semibold tabular-nums text-finzz-heading">
+                  <strong class={`shrink-0 ${amountValueClass}`}>
                     {formatCurrency(expense.amount)}
                   </strong>
                 </div>
@@ -102,7 +101,7 @@ export default function ExpenseList(props: ExpenseListProps) {
               <col style={{ width: '9%' }} />
             </colgroup>
             <thead>
-              <tr class="border-b border-finzz-border/80">
+              <tr class={tableHeadRowClass}>
                 <th scope="col" class={`px-2 py-1.5 ${tableHeadClass}`}>Descripción</th>
                 <th scope="col" class={`px-2 py-1.5 ${tableHeadClass}`}>Categoría</th>
                 <th scope="col" class={`px-2 py-1.5 ${tableHeadClass}`}>Fecha</th>
@@ -112,16 +111,10 @@ export default function ExpenseList(props: ExpenseListProps) {
             <tbody>
               <For each={props.expenses}>
                 {(expense) => (
-                  <tr class="border-b border-finzz-border/50 last:border-b-0">
+                  <tr class={tableRowClass}>
                     <td class="dashboard-list-row-cell px-2 py-1.5 lg:py-2.5">
                       <div class="flex items-center gap-2">
-                        <span
-                          aria-hidden="true"
-                          class="grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-finzz-border/70 bg-finzz-code/70"
-                          style={{ color: categoryChartColor(expense.category.slug) }}
-                        >
-                          {categoryIcon(expense.category.slug, 16)}
-                        </span>
+                        <CategoryIconChip slug={expense.category.slug} size="sm" />
                         <span class="flex min-w-0 items-baseline gap-2">
                           <strong class="truncate font-semibold text-finzz-heading">
                             {expense.description || expense.category.name}
@@ -135,7 +128,7 @@ export default function ExpenseList(props: ExpenseListProps) {
                     </td>
                     <td class="dashboard-list-row-cell whitespace-nowrap px-2 py-1.5 text-finzz-text lg:py-2.5">{formatDate(expense.expenseDate)}</td>
                     <td class="dashboard-list-row-cell whitespace-nowrap px-2 py-1.5 text-right lg:py-2.5">
-                      <strong class="font-semibold tabular-nums text-finzz-heading">
+                      <strong class={amountValueClass}>
                         {formatCurrency(expense.amount)}
                       </strong>
                     </td>

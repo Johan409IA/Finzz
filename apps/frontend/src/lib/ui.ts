@@ -7,7 +7,7 @@ export const pageHeaderClass =
   'flex flex-col gap-3 border-b border-finzz-border/60 pb-4 sm:flex-row sm:items-start sm:justify-between lg:shrink-0'
 
 export const primaryButtonClass =
-  'inline-flex min-h-11 items-center justify-center gap-2 box-border rounded-xl border border-transparent bg-finzz-accent px-4 py-2.5 text-sm font-bold text-[#03263c] shadow-[0_6px_18px_rgba(28,227,183,0.16)] transition-[background-color,transform,box-shadow] touch-manipulation hover:bg-[#35efc5] active:scale-[0.98] active:bg-finzz-accent-strong active:shadow-[0_3px_12px_rgba(28,227,183,0.12)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent disabled:cursor-not-allowed disabled:opacity-55'
+  'inline-flex min-h-11 items-center justify-center gap-2 box-border rounded-xl border border-transparent bg-finzz-accent px-4 py-2.5 text-sm font-bold text-finzz-on-accent shadow-[0_6px_18px_rgba(28,227,183,0.16)] transition-[background-color,transform,box-shadow] touch-manipulation hover:bg-finzz-accent-hover active:scale-[0.98] active:bg-finzz-accent-strong active:shadow-[0_3px_12px_rgba(28,227,183,0.12)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent disabled:cursor-not-allowed disabled:opacity-55'
 
 export const ghostButtonClass =
   'inline-flex min-h-11 items-center justify-center gap-2 box-border rounded-xl border border-finzz-border-strong/80 bg-transparent px-3.5 py-2 text-sm font-medium text-finzz-heading transition-[background-color,border-color,transform] hover:border-finzz-accent/60 hover:bg-finzz-accent-bg active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent disabled:cursor-not-allowed disabled:opacity-55'
@@ -27,3 +27,20 @@ export const cardSubtitleClass = 'm-0 mt-0.5 text-sm text-finzz-text'
 export const eyebrowClass = 'm-0 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-finzz-muted'
 
 export const tableHeadClass = 'text-[0.68rem] font-bold uppercase tracking-[0.12em] text-finzz-muted'
+
+export const tableHeadRowClass = 'border-b border-finzz-border/80'
+
+export const tableRowClass = 'border-b border-finzz-border/50 last:border-b-0'
+
+export const amountValueClass = 'font-semibold tabular-nums text-finzz-heading'
+
+export const avatarBadgeClass =
+  'grid h-10 w-10 shrink-0 place-items-center rounded-full border border-finzz-accent-border/60 bg-finzz-accent/15 text-sm font-bold text-finzz-accent'
+
+export const skeletonClass = 'motion-safe:animate-pulse bg-finzz-code/70'
+
+export function iconBadgeClass(tone: 'accent' | 'info', variant: 'square' | 'round' = 'square'): string {
+  const shape = variant === 'round' ? 'h-10 w-10 rounded-full' : 'h-8 w-8 rounded-xl'
+  const color = tone === 'accent' ? 'bg-finzz-accent/15 text-finzz-accent' : 'bg-finzz-info/15 text-finzz-info'
+  return `grid shrink-0 place-items-center ${shape} ${color}`
+}

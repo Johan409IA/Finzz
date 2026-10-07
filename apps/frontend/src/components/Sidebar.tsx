@@ -4,7 +4,7 @@ import LayoutDashboardIcon from 'lucide-solid/icons/layout-dashboard'
 import ListIcon from 'lucide-solid/icons/list'
 import LogOutIcon from 'lucide-solid/icons/log-out'
 import { getInitials } from '../lib/history'
-import { ghostButtonClass } from '../lib/ui'
+import { avatarBadgeClass, ghostButtonClass } from '../lib/ui'
 import { useAuth } from '../lib/auth'
 
 const NAV_ITEMS = [
@@ -29,6 +29,9 @@ const inactiveLinkClass =
 
 const activeIconClass = 'text-finzz-accent'
 const inactiveIconClass = 'text-finzz-muted'
+
+const navItemActiveClass = 'border-finzz-border/70 bg-finzz-surface-2 text-finzz-accent'
+const navItemInactiveClass = 'border-transparent text-finzz-text hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
 
 export default function Sidebar() {
   const location = useLocation()
@@ -58,9 +61,7 @@ export default function Sidebar() {
                   href={item.href}
                   aria-current={isActive(item.href) ? 'page' : undefined}
                   class={`inline-flex min-h-11 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent ${
-                    isActive(item.href)
-                      ? 'border-finzz-border/70 bg-finzz-surface-2 text-finzz-accent'
-                      : 'border-transparent text-finzz-text hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
+                    isActive(item.href) ? navItemActiveClass : navItemInactiveClass
                   }`}
                 >
                   {item.icon(isActive(item.href) ? activeIconClass : inactiveIconClass)}
@@ -86,9 +87,7 @@ export default function Sidebar() {
                 href={item.href}
                 aria-current={isActive(item.href) ? 'page' : undefined}
                 class={`inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-colors active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent ${
-                  isActive(item.href)
-                    ? 'border-finzz-border/70 bg-finzz-surface-2 text-finzz-accent'
-                    : 'border-transparent text-finzz-text hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
+                  isActive(item.href) ? navItemActiveClass : navItemInactiveClass
                 }`}
               >
                 {item.icon(isActive(item.href) ? activeIconClass : inactiveIconClass)}
@@ -130,10 +129,7 @@ export default function Sidebar() {
 
           <div class="mt-auto grid gap-3 border-t border-finzz-border/70 pt-4">
             <div class="flex items-center gap-3 px-1">
-              <span
-                aria-hidden="true"
-                class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-finzz-accent-border/60 bg-finzz-accent/15 text-sm font-bold text-finzz-accent"
-              >
+              <span aria-hidden="true" class={avatarBadgeClass}>
                 {getInitials(user()?.profile?.name, user()?.email)}
               </span>
               <span class="grid min-w-0">

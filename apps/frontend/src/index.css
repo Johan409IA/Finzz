@@ -13,8 +13,11 @@
   --color-finzz-heading: #f4f7fb;
   --color-finzz-accent: #1ce3b7;
   --color-finzz-accent-strong: #12cf9f;
+  --color-finzz-accent-hover: #35efc5;
+  --color-finzz-accent-light: #6cf6d3;
   --color-finzz-accent-bg: rgba(28, 227, 183, 0.12);
   --color-finzz-accent-border: rgba(28, 227, 183, 0.45);
+  --color-finzz-on-accent: #03263c;
   --color-finzz-danger: #ff8c9b;
   --color-finzz-danger-bg: rgba(255, 140, 155, 0.12);
   --color-finzz-danger-border: rgba(255, 140, 155, 0.45);

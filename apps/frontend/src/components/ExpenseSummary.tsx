@@ -6,7 +6,7 @@ import ReceiptTextIcon from 'lucide-solid/icons/receipt-text'
 import WalletIcon from 'lucide-solid/icons/wallet'
 import { categoryChartColor, resolveDailyTotals } from '../lib/charts'
 import { formatCurrency, formatDate } from '../lib/format'
-import { cardClass, cardSubtitleClass, cardTitleClass } from '../lib/ui'
+import { cardClass, cardSubtitleClass, cardTitleClass, iconBadgeClass, skeletonClass } from '../lib/ui'
 import { CategoryDonutChart, MonthlyTrendChart, WeeklyBarChart } from './charts/SummaryCharts'
 import type { ExpensePeriodType, ExpenseSummary as ExpenseSummaryData } from '../lib/expenses'
 
@@ -25,13 +25,11 @@ interface ExpenseSummaryProps {
 
 const segmentBaseClass =
   'min-h-11 rounded-lg px-5 py-2 text-sm transition-[background-color,color,transform] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-finzz-accent lg:w-[124px] lg:py-2'
-const segmentActiveClass = 'bg-finzz-accent font-bold text-[#03263c] shadow-[0_8px_22px_rgba(28,227,183,0.2)]'
+const segmentActiveClass = 'bg-finzz-accent font-bold text-finzz-on-accent shadow-[0_8px_22px_rgba(28,227,183,0.2)]'
 const segmentInactiveClass = 'font-semibold text-finzz-text hover:bg-finzz-accent-bg/60 hover:text-finzz-heading'
 
 const pickerClass =
   'relative inline-flex min-h-11 items-center gap-2 rounded-xl border border-finzz-border bg-finzz-bg-soft/60 px-3.5 py-2 transition-[border-color,box-shadow] hover:border-finzz-border-strong focus-within:border-finzz-accent focus-within:ring-2 focus-within:ring-finzz-accent/20 lg:w-[248px] lg:justify-between'
-
-const cardIconClass = 'grid h-8 w-8 shrink-0 place-items-center rounded-xl'
 
 const chartAreaClass = 'h-[190px] min-h-0 sm:h-[210px] md:h-[190px] lg:h-full'
 
@@ -45,12 +43,9 @@ interface MetricCardProps {
 }
 
 function MetricCard(props: MetricCardProps) {
-  const badgeClass = () =>
-    props.tone === 'accent' ? 'bg-finzz-accent/15 text-finzz-accent' : 'bg-finzz-info/15 text-finzz-info'
-
   return (
     <div class={`${cardClass} flex items-center gap-3 p-3 lg:gap-4 lg:px-4 lg:py-3`}>
-      <span aria-hidden="true" class={`${cardIconClass} h-10 w-10 rounded-full ${badgeClass()}`}>
+      <span aria-hidden="true" class={iconBadgeClass(props.tone, 'round')}>
         {props.icon}
       </span>
       <span class="grid min-w-0">
@@ -137,7 +132,7 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
                   type="week"
                   value={props.week}
                   onInput={(event) => props.onWeekChange(event.currentTarget.value)}
-                  class="min-w-0 flex-1 bg-transparent text-center text-sm font-semibold text-transparent outline-none [caret-color:transparent] [color-scheme:dark]"
+                  class="min-w-0 flex-1 bg-transparent text-center text-base font-semibold text-transparent outline-none [caret-color:transparent] [color-scheme:dark] sm:text-sm"
                 />
                 <span aria-hidden="true" class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-sm font-semibold text-finzz-heading">
                   {pickerText()}
@@ -174,12 +169,12 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
         <div role="status" aria-busy="true" class="grid gap-4 lg:min-h-0 lg:flex-1">
           <span class="sr-only">Cargando resumen…</span>
           <div class="grid gap-4 sm:grid-cols-2">
-            <div class="h-24 animate-pulse rounded-2xl bg-finzz-code/70" />
-            <div class="h-24 animate-pulse rounded-2xl bg-finzz-code/70" />
+            <div class={`h-24 rounded-2xl ${skeletonClass}`} />
+            <div class={`h-24 rounded-2xl ${skeletonClass}`} />
           </div>
           <div class="grid h-[220px] gap-4 lg:h-auto xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-            <div class="animate-pulse rounded-2xl bg-finzz-code/70" />
-            <div class="animate-pulse rounded-2xl bg-finzz-code/70" />
+            <div class={`rounded-2xl ${skeletonClass}`} />
+            <div class={`rounded-2xl ${skeletonClass}`} />
           </div>
         </div>
       </Show>
@@ -220,7 +215,7 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
                 <div class="dashboard-chart-grid grid min-h-0 gap-3 lg:h-[280px] lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
                 <figure class={chartCardClass}>
                   <figcaption class="flex items-start gap-3">
-                    <span aria-hidden="true" class={`${cardIconClass} bg-finzz-info/15 text-finzz-info`}>
+                    <span aria-hidden="true" class={iconBadgeClass('info')}>
                       <ChartColumnIcon size={20} strokeWidth={2} />
                     </span>
                     <span class="min-w-0">
@@ -251,7 +246,7 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
 
                 <figure class={chartCardClass}>
                   <figcaption class="flex items-start gap-3">
-                    <span aria-hidden="true" class={`${cardIconClass} bg-finzz-info/15 text-finzz-info`}>
+                    <span aria-hidden="true" class={iconBadgeClass('info')}>
                       <ChartPieIcon size={20} strokeWidth={2} />
                     </span>
                     <span class="min-w-0">
@@ -288,11 +283,7 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
                               </span>
                             </div>
                             <div
-                              role="progressbar"
-                              aria-label={`Porcentaje de ${category.name}`}
-                              aria-valuemin="0"
-                              aria-valuemax="100"
-                              aria-valuenow={category.percentage}
+                              aria-hidden="true"
                               class="mt-1 h-1 overflow-hidden rounded-full bg-finzz-code"
                             >
                               <span
@@ -310,6 +301,46 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
                   </div>
                 </figure>
               </div>
+              <table class="sr-only">
+                <caption>{trendTitle()}, valores diarios</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Importe</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <For each={dailyTotals()}>
+                    {(day) => (
+                      <tr>
+                        <th scope="row">{formatDate(day.date)}</th>
+                        <td>{formatCurrency(day.total)}</td>
+                      </tr>
+                    )}
+                  </For>
+                </tbody>
+              </table>
+              <table class="sr-only">
+                <caption>Gastos por categoría, resumen accesible del gráfico</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Importe</th>
+                    <th scope="col">Porcentaje</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <For each={summary().categories}>
+                    {(category) => (
+                      <tr>
+                        <th scope="row">{category.name}</th>
+                        <td>{formatCurrency(category.amount)}</td>
+                        <td>{category.percentage.toFixed(2)}%</td>
+                      </tr>
+                    )}
+                  </For>
+                </tbody>
+              </table>
             </Show>
           </>
         )}

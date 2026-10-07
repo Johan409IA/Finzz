@@ -24,6 +24,9 @@ export default function ExpenseForm(props: ExpenseFormProps) {
   const [categoryId, setCategoryId] = createSignal('')
   const [description, setDescription] = createSignal('')
   const [formError, setFormError] = createSignal<string | null>(null)
+  let amountInput: HTMLInputElement | undefined
+  let dateInput: HTMLInputElement | undefined
+  let categoryInput: HTMLSelectElement | undefined
 
   createEffect(() => {
     const expense = props.editingExpense
@@ -41,10 +44,17 @@ export default function ExpenseForm(props: ExpenseFormProps) {
     const parsedAmount = Number(amount())
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
       setFormError('Introduce un importe mayor que cero.')
+      amountInput?.focus()
       return
     }
-    if (!expenseDate() || !categoryId()) {
-      setFormError('Completa la fecha y la categoría.')
+    if (!expenseDate()) {
+      setFormError('Selecciona una fecha.')
+      dateInput?.focus()
+      return
+    }
+    if (!categoryId()) {
+      setFormError('Selecciona una categoría.')
+      categoryInput?.focus()
       return
     }
 
@@ -60,6 +70,7 @@ export default function ExpenseForm(props: ExpenseFormProps) {
     <form
       aria-label={props.editingExpense ? 'Editar gasto' : 'Nuevo gasto'}
       onSubmit={handleSubmit}
+      aria-busy={props.saving}
       class={`${cardClass} scroll-mt-24 p-5 text-left`}
     >
       <div class="mb-5 flex flex-wrap items-start justify-between gap-4">
@@ -86,6 +97,9 @@ export default function ExpenseForm(props: ExpenseFormProps) {
             inputmode="decimal"
             value={amount()}
             onInput={(event) => setAmount(event.currentTarget.value)}
+            ref={amountInput}
+            aria-invalid={formError()?.includes('importe') ? 'true' : undefined}
+            aria-describedby={formError()?.includes('importe') ? 'expense-form-error' : undefined}
             required
             class={fieldClass}
           />
@@ -96,6 +110,9 @@ export default function ExpenseForm(props: ExpenseFormProps) {
             type="date"
             value={expenseDate()}
             onInput={(event) => setExpenseDate(event.currentTarget.value)}
+            ref={dateInput}
+            aria-invalid={formError()?.includes('fecha') ? 'true' : undefined}
+            aria-describedby={formError()?.includes('fecha') ? 'expense-form-error' : undefined}
             required
             class={dateFieldClass}
           />
@@ -105,6 +122,9 @@ export default function ExpenseForm(props: ExpenseFormProps) {
           <select
             value={categoryId()}
             onChange={(event) => setCategoryId(event.currentTarget.value)}
+            ref={categoryInput}
+            aria-invalid={formError()?.includes('categoría') ? 'true' : undefined}
+            aria-describedby={formError()?.includes('categoría') ? 'expense-form-error' : undefined}
             required
             class={`${fieldClass} [color-scheme:dark]`}
           >
@@ -133,14 +153,18 @@ export default function ExpenseForm(props: ExpenseFormProps) {
       <Show when={props.error}>
         {(message) => <p class="mb-0 mt-4 text-sm text-finzz-danger" role="alert">{message()}</p>}
       </Show>
+      <Show when={!props.saving && props.categories.length === 0}>
+        <p class="mb-0 mt-4 text-sm text-finzz-text" role="status">Cargando categorías…</p>
+      </Show>
 
       <button
         type="submit"
-        disabled={props.saving || props.categories.length === 0}
+        disabled={props.saving}
+        aria-busy={props.saving}
         class={`${primaryButtonClass} mt-5 w-full`}
       >
         <Show when={props.saving}>
-          <LoaderCircleIcon size={16} strokeWidth={2.4} class="animate-spin" aria-hidden="true" />
+          <LoaderCircleIcon size={16} strokeWidth={2.4} class="motion-safe:animate-spin" aria-hidden="true" />
         </Show>
         {props.saving ? 'Guardando…' : props.editingExpense ? 'Guardar cambios' : 'Guardar gasto'}
       </button>

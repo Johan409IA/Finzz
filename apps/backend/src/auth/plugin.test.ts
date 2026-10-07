@@ -74,6 +74,14 @@ const validClaims = {
 }
 
 describe('auth plugin (RS256 vía JWKS de InsForge)', () => {
+  test('permite acceso a la raíz pública sin token', async () => {
+    const app = makeApp()
+    const res = await app.inject({ method: 'GET', url: '/' })
+    expect(res.statusCode).toBe(200)
+    expect(res.body).toBe('{"status":"ok"}')
+    await app.close()
+  })
+
   test('permite acceso a rutas públicas sin token', async () => {
     const app = makeApp()
     const res = await app.inject({ method: 'GET', url: '/api/health' })
