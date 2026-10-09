@@ -18,7 +18,7 @@ export default function AuthenticatedLayout(props: RouteSectionProps) {
       </a>
       <div class="mx-auto flex min-h-svh w-full max-w-none flex-col lg:h-full lg:min-h-0 lg:flex-row">
         <Sidebar />
-          <main id="main-content" tabindex="-1" aria-label="Contenido principal" class="min-w-0 flex-1 px-4 pb-8 pt-[calc(7.5rem+env(safe-area-inset-top))] sm:px-6 sm:pt-[calc(4.25rem+env(safe-area-inset-top))] lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:pl-2 lg:pr-3.5 lg:pb-4 lg:pt-5">
+          <main id="main-content" tabindex="-1" aria-label="Contenido principal" class="finzz-scrollbar min-w-0 flex-1 px-4 pb-8 pt-[calc(122px+1rem+env(safe-area-inset-top))] sm:px-6 sm:pt-[calc(61px+1rem+env(safe-area-inset-top))] lg:h-full lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:pl-2 lg:pr-3.5 lg:pb-4 lg:pt-5">
           {props.children}
         </main>
       </div>

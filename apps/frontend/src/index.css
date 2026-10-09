@@ -64,33 +64,33 @@
     line-height: 1.1;
   }
 
-  .history-expenses-scrollbar {
+  .finzz-scrollbar {
     overscroll-behavior: contain;
     scrollbar-color: var(--color-finzz-border) var(--color-finzz-bg-soft);
     scrollbar-width: thin;
   }
 
-  .history-expenses-scrollbar::-webkit-scrollbar {
+  .finzz-scrollbar::-webkit-scrollbar {
     width: 0.625rem;
     height: 0.625rem;
   }
 
-  .history-expenses-scrollbar::-webkit-scrollbar-track {
+  .finzz-scrollbar::-webkit-scrollbar-track {
     border-radius: 9999px;
     background-color: var(--color-finzz-bg-soft);
   }
 
-  .history-expenses-scrollbar::-webkit-scrollbar-thumb {
+  .finzz-scrollbar::-webkit-scrollbar-thumb {
     border: 2px solid var(--color-finzz-bg-soft);
     border-radius: 9999px;
     background-color: var(--color-finzz-border);
   }
 
-  .history-expenses-scrollbar::-webkit-scrollbar-thumb:hover {
+  .finzz-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: var(--color-finzz-accent);
   }
 
-  .history-expenses-scrollbar::-webkit-scrollbar-corner {
+  .finzz-scrollbar::-webkit-scrollbar-corner {
     background-color: var(--color-finzz-bg-soft);
   }
 

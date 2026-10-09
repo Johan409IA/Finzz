@@ -147,7 +147,7 @@ export default function ExpenseSummary(props: ExpenseSummaryProps) {
                 type="month"
                 value={props.month}
                 onInput={(event) => props.onMonthChange(event.currentTarget.value)}
-                class="min-w-0 flex-1 bg-transparent text-center text-sm font-semibold text-transparent outline-none [caret-color:transparent] [color-scheme:dark]"
+                class="min-w-0 flex-1 bg-transparent text-center text-base font-semibold text-transparent outline-none [caret-color:transparent] [color-scheme:dark] sm:text-sm"
               />
               <span aria-hidden="true" class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-sm font-semibold text-finzz-heading">
                 {pickerText()}

@@ -18,7 +18,6 @@ describe('ExpenseForm', () => {
         saving={false}
         error={null}
         onSubmit={onSubmit}
-        onCancelEdit={vi.fn()}
       />
     ))
 
@@ -26,6 +25,29 @@ describe('ExpenseForm', () => {
 
     expect(screen.getByRole('alert').textContent).toContain('Introduce un importe mayor que cero.')
     expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  test('distingue el error de carga de categorías y permite reintentar', () => {
+    const onRetryCategories = vi.fn()
+
+    render(() => (
+      <ExpenseForm
+        categories={[]}
+        editingExpense={null}
+        saving={false}
+        error={null}
+        categoriesError
+        onRetryCategories={onRetryCategories}
+        onSubmit={vi.fn()}
+      />
+    ))
+
+    expect(screen.getByRole('alert').textContent).toContain('No se pudieron cargar las categorías.')
+    expect(screen.getByRole('button', { name: 'Reintentar categorías' })).toBeTruthy()
+    expect((screen.getByRole('button', { name: 'Guardar gasto' }) as HTMLButtonElement).disabled).toBe(true)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reintentar categorías' }))
+    expect(onRetryCategories).toHaveBeenCalledOnce()
   })
 
   test('expone los campos etiquetados del formulario', () => {
@@ -36,7 +58,6 @@ describe('ExpenseForm', () => {
         saving={false}
         error={null}
         onSubmit={vi.fn()}
-        onCancelEdit={vi.fn()}
       />
     ))
 

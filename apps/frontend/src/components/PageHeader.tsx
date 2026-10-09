@@ -8,7 +8,6 @@ interface PageHeaderProps {
   subtitle: string
   onCreate: () => void
   class?: string
-  actionsClass?: string
 }
 
 export default function PageHeader(props: PageHeaderProps) {
@@ -21,7 +20,7 @@ export default function PageHeader(props: PageHeaderProps) {
         <p class="m-0 text-finzz-text">{props.subtitle}</p>
       </div>
       <div
-        class={`flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end ${props.actionsClass ?? ''}`}
+        class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end"
       >
         <span class="inline-flex items-center gap-2 text-sm text-finzz-text">
           <CalendarIcon size={16} strokeWidth={2} class="text-finzz-accent" aria-hidden="true" />

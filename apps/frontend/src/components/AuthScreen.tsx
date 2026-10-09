@@ -149,7 +149,7 @@ export function AuthSubmitButton(props: AuthSubmitButtonProps) {
   return (
     <button type="submit" disabled={props.loading} aria-busy={props.loading} class={authSubmitClass}>
       <Show when={props.loading}>
-        <LoaderCircle size={18} strokeWidth={2.4} class="animate-spin" aria-hidden="true" />
+        <LoaderCircle size={18} strokeWidth={2.4} class="motion-safe:animate-spin" aria-hidden="true" />
       </Show>
       <span>{props.label}</span>
       <span class="sr-only" aria-live="polite">{props.loading ? props.loadingLabel : ''}</span>

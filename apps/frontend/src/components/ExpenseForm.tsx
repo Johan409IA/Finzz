@@ -8,8 +8,9 @@ interface ExpenseFormProps {
   editingExpense: Expense | null
   saving: boolean
   error: string | null
+  categoriesError?: boolean
+  onRetryCategories?: () => void
   onSubmit: (input: ExpenseInput) => Promise<void>
-  onCancelEdit: () => void
 }
 
 const dateFieldClass = `${fieldClass} [color-scheme:dark]`
@@ -73,18 +74,11 @@ export default function ExpenseForm(props: ExpenseFormProps) {
       aria-busy={props.saving}
       class={`${cardClass} scroll-mt-24 p-5 text-left`}
     >
-      <div class="mb-5 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p class={eyebrowClass}>Registro</p>
-          <h2 class={`${cardTitleClass} mt-1`}>
-            {props.editingExpense ? 'Editar gasto' : 'Registrar gasto'}
-          </h2>
-        </div>
-        <Show when={props.editingExpense}>
-          <button type="button" onClick={props.onCancelEdit} class={ghostButtonClass}>
-            Cancelar
-          </button>
-        </Show>
+      <div class="mb-5">
+        <p class={eyebrowClass}>Registro</p>
+        <h2 class={`${cardTitleClass} mt-1`}>
+          {props.editingExpense ? 'Editar gasto' : 'Registrar gasto'}
+        </h2>
       </div>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -153,13 +147,23 @@ export default function ExpenseForm(props: ExpenseFormProps) {
       <Show when={props.error}>
         {(message) => <p class="mb-0 mt-4 text-sm text-finzz-danger" role="alert">{message()}</p>}
       </Show>
-      <Show when={!props.saving && props.categories.length === 0}>
+      <Show when={props.categoriesError}>
+        <div class="mt-4 grid gap-2" role="alert">
+          <p class="m-0 text-sm text-finzz-danger">No se pudieron cargar las categorías.</p>
+          {props.onRetryCategories && (
+            <button type="button" onClick={() => props.onRetryCategories?.()} class={ghostButtonClass}>
+              Reintentar categorías
+            </button>
+          )}
+        </div>
+      </Show>
+      <Show when={!props.categoriesError && props.categories.length === 0}>
         <p class="mb-0 mt-4 text-sm text-finzz-text" role="status">Cargando categorías…</p>
       </Show>
 
       <button
         type="submit"
-        disabled={props.saving}
+        disabled={props.saving || props.categories.length === 0 || props.categoriesError}
         aria-busy={props.saving}
         class={`${primaryButtonClass} mt-5 w-full`}
       >

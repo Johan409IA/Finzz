@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finzz - Checkup de diseño</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .report-section {
+        border: 1px solid #222226;
+        background: #0a0a0b;
+        position: relative;
+      }
+      .corner-box {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 1px solid #222226;
+        background: #000;
+      }
+    </style>
+  </head>
+  <body class="bg-black text-[#fafafa]">
+    <main class="mx-auto w-full max-w-6xl px-5 py-8 md:px-10 md:py-12">
+      <header class="report-section mb-8 p-6 md:p-8">
+        <div
+          class="corner-box left-0 top-0 -translate-x-1/2 -translate-y-1/2"
+        ></div>
+        <div
+          class="corner-box right-0 top-0 translate-x-1/2 -translate-y-1/2"
+        ></div>
+        <div
+          class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between"
+        >
+          <div>
+            <div class="mono mb-2 text-xs tracking-widest text-[#666]">
+              // CHECKUP · PRODUCT UI
+            </div>
+            <h1 class="text-4xl font-bold tracking-tight md:text-6xl">Finzz</h1>
+            <p class="mt-2 text-sm text-[#a0a0a0]">
+              Login · Register · Dashboard · Historial
+            </p>
+          </div>
+          <div class="mono text-left text-xs text-[#666] md:text-right">
+            <div>COMMANDCODE REPORT</div>
+            <div class="text-[#444]">2026-10-09</div>
+          </div>
+        </div>
+      </header>
+
+      <section class="report-section mb-8 p-6 md:p-8">
+        <div
+          class="corner-box left-0 top-0 -translate-x-1/2 -translate-y-1/2"
+        ></div>
+        <div
+          class="corner-box right-0 top-0 translate-x-1/2 -translate-y-1/2"
+        ></div>
+        <div class="grid gap-8 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+          <div>
+            <div class="mono mb-2 text-xs tracking-widest text-[#666]">
+              // OVERALL
+            </div>
+            <div class="text-6xl font-bold tracking-tight">35</div>
+            <div class="mt-1 text-lg text-[#666]">/ 60</div>
+            <div
+              class="mt-4 inline-flex border border-[#ef4444]/30 bg-[#ef4444]/10 px-3 py-1 text-sm text-[#ef4444]"
+            >
+              BLOCK
+            </div>
+          </div>
+          <div>
+            <div class="mono mb-3 text-xs tracking-widest text-[#666]">
+              // TL;DR
+            </div>
+            <p class="text-sm leading-6 text-[#a0a0a0]">
+              La dirección navy/menta sigue las referencias. Login, Register y
+              ambas rutas autenticadas se probaron en Edge con backend activo y
+              datos reales. Responsive no muestra overflow horizontal en los
+              anchos revisados; quedan un spinner no reducido, selector mensual
+              de 14 px y un solape de 2 px entre header fijo y título en móvil.
+            </p>
+            <p class="mt-4 text-sm leading-6 text-[#fbbf24]">
+              Siguiente: corregir los tres hallazgos y repetir los checks de
+              accesibilidad/responsive.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="report-section mb-8 p-6 md:p-8">
+        <div class="mono mb-6 text-xs tracking-widest text-[#666]">
+          // HEURISTIC SCORES
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-720p border-collapse text-sm">
+            <thead>
+              <tr
+                class="border-b border-[#222226] text-left mono text-xs text-[#666]"
+              >
+                <th class="py-3 pr-4 font-normal">#</th>
+                <th class="py-3 pr-4 font-normal">VITAL</th>
+                <th class="py-3 pr-4 font-normal">SCORE</th>
+                <th class="py-3 font-normal">EVIDENCE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-[#1a1a1e]">
+                <td class="py-4 pr-4 text-[#555]">1</td>
+                <td class="py-4 pr-4">Intencionalidad</td>
+                <td class="py-4 pr-4 text-[#34d399]">10/10</td>
+                <td class="py-4 text-[#a0a0a0]">
+                  Paleta y composiciones siguen las cinco referencias.
+                </td>
+              </tr>
+              <tr class="border-b border-[#1a1a1e]">
+                <td class="py-4 pr-4 text-[#555]">2</td>
+                <td class="py-4 pr-4">Legibilidad</td>
+                <td class="py-4 pr-4 text-[#fbbf24]">5/10</td>
+                <td class="py-4 text-[#a0a0a0]">
+                  Selector mensual 14 px; pie auth aprox. 9,6 px.
+                </td>
+              </tr>
+              <tr class="border-b border-[#1a1a1e]">
+                <td class="py-4 pr-4 text-[#555]">3</td>
+                <td class="py-4 pr-4">Usabilidad</td>
+                <td class="py-4 pr-4 text-[#34d399]">10/10</td>
+                <td class="py-4 text-[#a0a0a0]">
+                  Periodo, búsqueda, paginación y diálogos ejercitados con
+                  backend.
+                </td>
+              </tr>
+              <tr class="border-b border-[#1a1a1e]">
+                <td class="py-4 pr-4 text-[#555]">4</td>
+                <td class="py-4 pr-4">Responsividad</td>
+                <td class="py-4 pr-4 text-[#fbbf24]">5/10</td>
+                <td class="py-4 text-[#a0a0a0]">
+                  Sin overflow a 320/375/768/1440; header y título cruzan 2 px
+                  en móvil.
+                </td>
+              </tr>
+              <tr class="border-b border-[#1a1a1e]">
+                <td class="py-4 pr-4 text-[#555]">5</td>
+                <td class="py-4 pr-4">Velocidad</td>
+                <td class="py-4 pr-4 text-[#fbbf24]">5/10</td>
+                <td class="py-4 text-[#a0a0a0]">
+                  Carga local/API observada; sin métricas de rendimiento.
+                </td>
+              </tr>
+              <tr>
+                <td class="py-4 pr-4 text-[#555]">6</td>
+                <td class="py-4 pr-4">Accesibilidad</td>
+                <td class="py-4 pr-4 text-[#ef4444]">0/10</td>
+                <td class="py-4 text-[#a0a0a0]">
+                  Spinner auth ignora reduced-motion; HIGH.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="report-section mb-8 p-6 md:p-8">
+        <div class="mono mb-6 text-xs tracking-widest text-[#666]">
+          // SIGNALS / VERIFICATION
+        </div>
+        <div class="grid gap-6 md:grid-cols-2">
+          <div>
+            <div class="mb-3 text-xl font-semibold">Lo que funciona</div>
+            <ul class="space-y-3 text-sm text-[#a0a0a0]">
+              <li>
+                <span class="mono mr-2 text-[#34d399]">PASS</span>Login
+                autenticó; endpoints backend de gastos, categorías y resúmenes
+                devolvieron 200.
+              </li>
+              <li>
+                <span class="mono mr-2 text-[#34d399]">PASS</span>Dashboard
+                cambió mensual/semanal y actualizó métricas, gráficos y datos
+                accesibles.
+              </li>
+              <li>
+                <span class="mono mr-2 text-[#34d399]">PASS</span>Historial
+                buscó, restauró resultados y pasó a página 2.
+              </li>
+              <li>
+                <span class="mono mr-2 text-[#34d399]">PASS</span>Dialog Editar
+                y Registrar abren con foco inicial; Escape los cierra, devuelve
+                el foco y no mutó datos.
+              </li>
+              <li>
+                <span class="mono mr-2 text-[#34d399]">PASS</span
+                >Dashboard/Historial: sin overflow de página a 320, 375, 768 y
+                1440 px; tabla de 768 px tiene scroll interno.
+              </li>
+            </ul>
+          </div>
+          <div>
+            <div class="mono mb-3 text-xs tracking-widest text-[#666]">
+              // NOT VERIFIED
+            </div>
+            <p class="text-sm leading-6 text-[#a0a0a0]">
+              Guardado/eliminación y confirmación destructiva (se evitó tocar
+              datos reales); flujo completo de teclado; contraste calculado;
+              zoom 200 %; reduced-motion en runtime; Safari iOS y métricas de
+              rendimiento. Un refresh inicial de InsForge devolvió 401, el
+              siguiente 200; las llamadas de datos del backend fueron 200.
+            </p>
+            <div class="mt-5 flex flex-wrap gap-2">
+              <span
+                class="border border-[#333] px-3 py-1 text-sm text-[#a0a0a0]"
+                >/a11y</span
+              ><span
+                class="border border-[#333] px-3 py-1 text-sm text-[#a0a0a0]"
+                >/responsive</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="report-section mb-8 p-6 md:p-8">
+        <div class="mono mb-6 text-xs tracking-widest text-[#666]">
+          // PRIORITY ISSUES
+        </div>
+        <div class="space-y-5">
+          <article class="border border-[#2a1d22] bg-[#110b0d] p-5">
+            <div class="mono mb-2 text-xs text-[#f43f5e]">
+              HIGH · ACCESSIBILITY
+            </div>
+            <h2 class="mb-2 text-lg font-semibold">
+              El spinner de autenticación ignora movimiento reducido
+            </h2>
+            <p class="mb-4 text-sm leading-6 text-[#a0a0a0]">
+              <code>apps/frontend/src/components/AuthScreen.tsx:152</code>
+              aplica <code>animate-spin</code> sin condición de
+              <code>prefers-reduced-motion</code>.
+            </p>
+            <div
+              class="border-l border-[#fbbf24] pl-4 text-sm leading-6 text-[#fbbf24]"
+            >
+              FIX: usar <code>motion-safe:animate-spin</code>.
+            </div>
+          </article>
+          <article class="border border-[#28231a] bg-[#100e09] p-5">
+            <div class="mono mb-2 text-xs text-[#fbbf24]">
+              MEDIUM · RESPONSIVE
+            </div>
+            <h2 class="mb-2 text-lg font-semibold">
+              El selector mensual computa 14 px en Dashboard
+            </h2>
+            <p class="mb-4 text-sm leading-6 text-[#a0a0a0]">
+              <code>apps/frontend/src/components/ExpenseSummary.tsx:150</code>
+              usa <code>text-sm</code>; Edge confirmó 14 px a 320 y 768 px.
+            </p>
+            <div
+              class="border-l border-[#fbbf24] pl-4 text-sm leading-6 text-[#fbbf24]"
+            >
+              FIX: cambiar a <code>text-base sm:text-sm</code> para evitar
+              autozoom móvil de iOS al enfocar.
+            </div>
+          </article>
+          <article class="border border-[#28231a] bg-[#100e09] p-5">
+            <div class="mono mb-2 text-xs text-[#fbbf24]">
+              MEDIUM · RESPONSIVE
+            </div>
+            <h2 class="mb-2 text-lg font-semibold">
+              Header fijo y título se solapan 2 px en móvil
+            </h2>
+            <p class="mb-4 text-sm leading-6 text-[#a0a0a0]">
+              <code
+                >apps/frontend/src/components/AuthenticatedLayout.tsx:21</code
+              >: a 320/375 px el header mide 122 px y el <code>h1</code> inicia
+              en y=120.
+            </p>
+            <div
+              class="border-l border-[#fbbf24] pl-4 text-sm leading-6 text-[#fbbf24]"
+            >
+              FIX: aumentar el padding superior móvil para colocar el contenido
+              bajo el header con una separación visible.
+            </div>
+          </article>
+        </div>
+      </section>
+      <footer class="mono py-8 text-center text-xs tracking-widest text-[#444]">
+        Generated with CommandCode · 2026-10-09
+      </footer>
+    </main>
+  </body>
+</html>

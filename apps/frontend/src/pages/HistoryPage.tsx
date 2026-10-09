@@ -66,7 +66,7 @@ export default function HistoryPage() {
 
   const query = () => ({ page: page(), limit: PAGE_SIZE, search: debouncedSearch() || undefined })
   const [history, { refetch }] = createResource(query, listExpensesPage)
-  const [categories] = createResource(listCategories)
+  const [categories, { refetch: refetchCategories }] = createResource(listCategories)
 
   const total = () => history()?.total ?? 0
   const totalPages = () => history()?.totalPages ?? 1
@@ -270,7 +270,7 @@ export default function HistoryPage() {
                     )}
                   </For>
                 </ul>
-                <div class={`history-expenses-scrollbar ${cardClass} hidden min-w-0 overflow-x-auto sm:block lg:min-h-0 lg:flex-1`}>
+                <div class={`finzz-scrollbar ${cardClass} hidden min-w-0 overflow-x-auto sm:block lg:min-h-0 lg:flex-1`}>
                 <table class="w-full min-w-[720px] border-collapse text-left text-sm">
                   <thead>
                     <tr class={tableHeadRowClass}>
@@ -404,8 +404,9 @@ export default function HistoryPage() {
             editingExpense={editingExpense()}
             saving={saving()}
             error={mutationError()}
+            categoriesError={Boolean(categories.error)}
+            onRetryCategories={() => void refetchCategories()}
             onSubmit={handleExpenseSubmit}
-            onCancelEdit={closeModal}
           />
         </ExpenseDialog>
       </Show>

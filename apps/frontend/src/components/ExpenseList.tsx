@@ -92,7 +92,7 @@ export default function ExpenseList(props: ExpenseListProps) {
             )}
           </For>
         </ul>
-        <div class="hidden overflow-x-auto sm:block">
+        <div class="finzz-scrollbar hidden overflow-x-auto sm:block">
           <table class="w-full min-w-[560px] border-collapse text-left text-sm">
             <colgroup>
               <col style={{ width: '36.5%' }} />

@@ -8,9 +8,10 @@
 - Prefers TypeScript across backend and frontend. Confidence: 0.6
 - Stack: Fastify backend (with jose for JWT verification) and SolidJS + Vite frontend. Confidence: 0.6
 - Expects changes to be verified with automated tests plus typecheck/build before completion. Confidence: 0.5
-- Uses the Playwright CLI (playwright-cli skill) for browser testing/automation. Confidence: 0.8
+- Uses the Playwright CLI (playwright-cli skill) for browser testing/automation. Confidence: 0.9
 - Uses Microsoft Edge as the browser for Playwright (--browser=msedge) rather than the default bundled Chromium, to avoid downloading the Chromium binary and reuse the locally installed Edge. Confidence: 0.9
-- When reviewing visual/design work, expects the agent to self-inspect the rendered UI in a real browser (Playwright/Edge) against the reference screenshot, and will provide real login credentials so authenticated screens can be opened for that review. Confidence: 0.8
+- When reviewing visual/design work, expects the agent to self-inspect the rendered UI in a real browser (Playwright/Edge) against the reference screenshot, and will provide real login credentials so authenticated screens can be opened for that review. Confidence: 0.9
+- Uses the `/design checkup` command to audit design quality (accessibility + responsive) and expects the agent to read the generated report (`.commandcode/design/checkup-report.md`) and actually fix the flagged observations so the verdict clears. Confidence: 0.8
 - When diagnosing integration/auth bugs, expects real end-to-end verification against the actual external service (e.g., sign up + log in through Playwright, decode real JWTs to inspect claims/algorithms) to find the root cause rather than trusting documented assumptions. Confidence: 0.7
 - Works on Windows: absolute Windows paths (e.g., D:\Codigo\...), cmd/PowerShell shell commands, and tools like where.exe / dir / Get-NetTCPConnection for lookup. Confidence: 0.8
 - Uses InsForge as the auth provider (frontend SDK) and runs its CLI via `npx @insforge/cli` (not a globally installed `insforge` binary) for config, metadata, secrets, and database migrations. Confidence: 0.9
@@ -36,7 +37,10 @@
 - Prefers row-level edit/delete actions only on the dedicated management screen (e.g., Historial) and not on read-only summary/preview lists (e.g., "Últimos 5 gastos"). Confidence: 0.7
 - Is willing to modify or remove existing tests when a UI change (button rename, form moved into a modal) requires it, rather than constraining the UI to keep matching stale tests. Confidence: 0.7
 - In this monorepo the root `bun dev` starts both servers, but for visual verification with loaded data the user expects frontend and backend to be started separately (apps/frontend and apps/backend). Confidence: 0.85
+- Expects the agent to consult and follow the project's AGENTS.md file for project-specific instructions (e.g., start frontend and backend separately from their own directories, not just the frontend) rather than relying on defaults. Confidence: 0.7
 - Prefers lists/legends inside cards to show all items fully (e.g., all six categories in the donut chart) without an internal scrollbar, rather than clipping or adding overflow scrolling. Confidence: 0.8
 - Prefers compact/dense UI components — smaller cards, icons, paddings, gaps, and font sizes — so more content fits on screen and sections don't overlap, in addition to allowing the content area to scroll. Confidence: 0.7
 - Before performing a destructive git operation (e.g., deleting a branch), wants the agent to first verify there is no unique/unmerged work that would be lost (check for commits/ancestry/diffs and remote presence), then proceed. Confidence: 0.8
 - Prefers a show/hide password visibility toggle (eye icon) on password fields in auth forms (login/register), with an accessible label/state. Confidence: 0.9
+- Prefers visual/layout consistency between related screens for shared UI elements — e.g., matching the date position near the action button and the scrollbar style between Dashboard and Historial. Confidence: 0.7
+- Prefers removing redundant duplicate actions on mobile (e.g., a "Cancelar" button) when an equivalent affordance (the close 'x') already exists, so the mobile layout matches the desktop layout. Confidence: 0.7

@@ -33,7 +33,7 @@ export default function DashboardPage() {
   const [recent, { refetch: refetchRecent }] = createResource(() =>
     listExpensesPage({ page: 1, limit: RECENT_LIMIT }),
   )
-  const [categories] = createResource(listCategories)
+  const [categories, { refetch: refetchCategories }] = createResource(listCategories)
   const [summary, { refetch: refetchSummary }] = createResource(selectedPeriod, getExpenseSummary)
   const [modalOpen, setModalOpen] = createSignal(false)
   const [saving, setSaving] = createSignal(false)
@@ -75,7 +75,6 @@ export default function DashboardPage() {
         subtitle="Visualiza y controla tus gastos personales."
         onCreate={openCreateModal}
         class="lg:border-b-0 lg:pb-0"
-        actionsClass="lg:min-w-[420px] lg:justify-between xl:min-w-[560px]"
       />
 
       <Show when={successMessage()}>
@@ -127,8 +126,9 @@ export default function DashboardPage() {
             editingExpense={null}
             saving={saving()}
             error={mutationError()}
+            categoriesError={Boolean(categories.error)}
+            onRetryCategories={() => void refetchCategories()}
             onSubmit={handleExpenseSubmit}
-            onCancelEdit={closeModal}
           />
         </ExpenseDialog>
       </Show>
