@@ -50,6 +50,22 @@ describe('ExpenseForm', () => {
     expect(onRetryCategories).toHaveBeenCalledOnce()
   })
 
+  test('usa la fecha local de hoy como valor predeterminado', () => {
+    render(() => (
+      <ExpenseForm
+        categories={categories}
+        editingExpense={null}
+        saving={false}
+        error={null}
+        onSubmit={vi.fn()}
+      />
+    ))
+
+    const date = new Date()
+    const expected = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    expect((screen.getByLabelText('Fecha') as HTMLInputElement).value).toBe(expected)
+  })
+
   test('expone los campos etiquetados del formulario', () => {
     render(() => (
       <ExpenseForm

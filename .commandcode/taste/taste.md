@@ -44,3 +44,4 @@
 - Prefers a show/hide password visibility toggle (eye icon) on password fields in auth forms (login/register), with an accessible label/state. Confidence: 0.9
 - Prefers visual/layout consistency between related screens for shared UI elements — e.g., matching the date position near the action button and the scrollbar style between Dashboard and Historial. Confidence: 0.7
 - Prefers removing redundant duplicate actions on mobile (e.g., a "Cancelar" button) when an equivalent affordance (the close 'x') already exists, so the mobile layout matches the desktop layout. Confidence: 0.7
+- Prefers dates derived from local time components (getFullYear/getMonth/getDate) rather than `toISOString().slice(0, 10)`, which shifts to UTC and can advance the day by one; date defaults (e.g., a new expense's date) must show the user's local "today". Confidence: 0.7
